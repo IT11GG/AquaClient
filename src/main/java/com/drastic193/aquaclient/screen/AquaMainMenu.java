@@ -12,20 +12,25 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 
 import java.awt.Color;
+import java.util.ArrayList;
+import java.util.List;
 
 public class AquaMainMenu extends Screen {
     private final MinecraftClient client = MinecraftClient.getInstance();
     private float animationTick = 0.0f;
     private float logoScale = 1.0f;
-    private float buttonAlpha = 0.0f;
+    private float buttonAlpha = 1.0f; // Зразу робимо кнопки видимими
+
+    // Список кнопок для кастомного рендерингу
+    private List<CustomButton> customButtons = new ArrayList<>();
 
     // Color scheme - modern dark theme
     private static final Color PRIMARY_BG = new Color(13, 17, 23, 255);
     private static final Color SECONDARY_BG = new Color(21, 28, 36, 180);
-    private static final Color ACCENT_BLUE = new Color(58, 134, 255);
-    private static final Color ACCENT_CYAN = new Color(79, 172, 254);
-    private static final Color TEXT_PRIMARY = new Color(255, 255, 255);
-    private static final Color TEXT_SECONDARY = new Color(160, 174, 192);
+    private static final Color ACCENT_BLUE = new Color(58, 134, 255, 255);
+    private static final Color ACCENT_CYAN = new Color(79, 172, 254, 255);
+    private static final Color TEXT_PRIMARY = new Color(255, 255, 255, 255);
+    private static final Color TEXT_SECONDARY = new Color(160, 174, 192, 255);
     private static final Color BUTTON_BG = new Color(30, 41, 59, 200);
     private static final Color BUTTON_HOVER = new Color(51, 65, 85, 220);
 
@@ -37,67 +42,61 @@ public class AquaMainMenu extends Screen {
     protected void init() {
         super.init();
 
-        int buttonWidth = 300;
-        int buttonHeight = 45;
-        int centerX = this.width / 2;
-        int startY = this.height / 2 - 20;
-        int spacing = 55;
+        // Очищуємо список кнопок
+        customButtons.clear();
 
-        // Singleplayer
-        this.addDrawableChild(createStyledButton(
-                Text.literal("Одиночна гра"),
+        // Фіксовані розміри кнопок незалежно від налаштувань Minecraft
+        int buttonWidth = 280;
+        int buttonHeight = 40;
+        int centerX = this.width / 2;
+        int startY = this.height / 2 - 40;
+        int spacing = 50;
+
+        // Створюємо кастомні кнопки з фіксованими розмірами
+        customButtons.add(new CustomButton(
+                "Одиночна гра",
                 centerX - buttonWidth / 2,
                 startY,
                 buttonWidth,
                 buttonHeight,
-                btn -> client.setScreen(new SelectWorldScreen(this))
+                () -> client.setScreen(new SelectWorldScreen(this))
         ));
 
-        // Multiplayer
-        this.addDrawableChild(createStyledButton(
-                Text.literal("Мережева гра"),
+        customButtons.add(new CustomButton(
+                "Мережева гра",
                 centerX - buttonWidth / 2,
                 startY + spacing,
                 buttonWidth,
                 buttonHeight,
-                btn -> client.setScreen(new MultiplayerScreen(this))
+                () -> client.setScreen(new MultiplayerScreen(this))
         ));
 
-        // Options
-        this.addDrawableChild(createStyledButton(
-                Text.literal("Налаштування"),
+        customButtons.add(new CustomButton(
+                "Налаштування",
                 centerX - buttonWidth / 2,
                 startY + spacing * 2,
                 buttonWidth,
                 buttonHeight,
-                btn -> client.setScreen(new OptionsScreen(this, client.options))
+                () -> client.setScreen(new OptionsScreen(this, client.options))
         ));
 
-        // Client Settings
-        this.addDrawableChild(createStyledButton(
-                Text.literal("Налаштування клієнта"),
+        customButtons.add(new CustomButton(
+                "Налаштування клієнта",
                 centerX - buttonWidth / 2,
                 startY + spacing * 3,
                 buttonWidth,
                 buttonHeight,
-                btn -> client.setScreen(new AquaSettingsScreen(this))
+                () -> client.setScreen(new AquaSettingsScreen(this))
         ));
 
-        // Quit
-        this.addDrawableChild(createStyledButton(
-                Text.literal("Вихід"),
+        customButtons.add(new CustomButton(
+                "Вихід",
                 centerX - buttonWidth / 2,
                 startY + spacing * 4,
                 buttonWidth,
                 buttonHeight,
-                btn -> client.scheduleStop()
+                () -> client.scheduleStop()
         ));
-    }
-
-    private ButtonWidget createStyledButton(Text text, int x, int y, int width, int height, ButtonWidget.PressAction action) {
-        return new ButtonWidget.Builder(text, action)
-                .dimensions(x, y, width, height)
-                .build();
     }
 
     @Override
@@ -122,12 +121,7 @@ public class AquaMainMenu extends Screen {
         // Custom button rendering with glassmorphism effect
         renderCustomButtons(context, mouseX, mouseY);
 
-        // Render actual buttons (invisible, just for functionality)
-        context.getMatrices().push();
-        context.getMatrices().scale(1.0f, 1.0f, 1.0f);
-        // Make buttons transparent for custom rendering
-        super.render(context, mouseX, mouseY, delta);
-        context.getMatrices().pop();
+        // НЕ викликаємо super.render щоб уникнути стандартних кнопок Minecraft
     }
 
     private void drawGradientBackground(DrawContext context) {
@@ -138,27 +132,29 @@ public class AquaMainMenu extends Screen {
         // Base dark background
         context.fill(0, 0, width, height, PRIMARY_BG.getRGB());
 
-        // Animated gradient overlay
+        // Animated gradient overlay - ВИПРАВЛЕНО: обмежено alpha значення
         float wave1 = (float) Math.sin(animationTick * 0.02f) * 0.3f + 0.7f;
         float wave2 = (float) Math.cos(animationTick * 0.025f) * 0.3f + 0.7f;
 
         // Top gradient
         for (int i = 0; i < height / 3; i++) {
             float alpha = (1.0f - (float) i / (height / 3)) * 0.2f * wave1;
-            int color = new Color(58, 134, 255, (int) (alpha * 255)).getRGB();
+            int alphaInt = Math.max(0, Math.min(255, (int) (alpha * 255)));
+            int color = new Color(58, 134, 255, alphaInt).getRGB();
             context.fill(0, i, width, i + 1, color);
         }
 
         // Bottom gradient
         for (int i = height * 2 / 3; i < height; i++) {
             float alpha = ((float) (i - height * 2 / 3) / (height / 3)) * 0.15f * wave2;
-            int color = new Color(79, 172, 254, (int) (alpha * 255)).getRGB();
+            int alphaInt = Math.max(0, Math.min(255, (int) (alpha * 255)));
+            int color = new Color(79, 172, 254, alphaInt).getRGB();
             context.fill(0, i, width, i + 1, color);
         }
     }
 
     private void drawParticleEffect(DrawContext context) {
-        // Simple particle effect
+        // Simple particle effect - ВИПРАВЛЕНО: обмежено alpha значення
         for (int i = 0; i < 50; i++) {
             float time = animationTick * 0.01f + i;
             float x = (float) (Math.sin(time * 0.7f + i) * width * 0.4f + width * 0.5f);
@@ -167,7 +163,8 @@ public class AquaMainMenu extends Screen {
 
             if (alpha > 0) {
                 int size = 1 + (i % 3);
-                int color = new Color(255, 255, 255, (int) (alpha * 255)).getRGB();
+                int alphaInt = Math.max(0, Math.min(255, (int) (alpha * 255)));
+                int color = new Color(255, 255, 255, alphaInt).getRGB();
                 context.fill((int) x, (int) y, (int) x + size, (int) y + size, color);
             }
         }
@@ -215,27 +212,23 @@ public class AquaMainMenu extends Screen {
     }
 
     private void renderCustomButtons(DrawContext context, int mouseX, int mouseY) {
-        for (int i = 0; i < this.children().size(); i++) {
-            if (this.children().get(i) instanceof ButtonWidget button) {
-                renderGlassButton(context, button, mouseX, mouseY, i * 0.1f);
-            }
+        for (int i = 0; i < customButtons.size(); i++) {
+            CustomButton button = customButtons.get(i);
+            renderGlassButton(context, button, mouseX, mouseY, i * 0.1f);
         }
     }
 
-    private void renderGlassButton(DrawContext context, ButtonWidget button, int mouseX, int mouseY, float delay) {
-        int x = button.getX();
-        int y = button.getY();
-        int width = button.getWidth();
-        int height = button.getHeight();
-
-        float currentAlpha = Math.max(0, buttonAlpha - delay);
-        if (currentAlpha <= 0) return;
+    private void renderGlassButton(DrawContext context, CustomButton button, int mouseX, int mouseY, float delay) {
+        int x = button.x;
+        int y = button.y;
+        int width = button.width;
+        int height = button.height;
 
         boolean isHovered = mouseX >= x && mouseX <= x + width && mouseY >= y && mouseY <= y + height;
 
-        // Glassmorphism background
-        int bgAlpha = (int) (currentAlpha * (isHovered ? 100 : 70));
-        int borderAlpha = (int) (currentAlpha * 120);
+        // ВИПРАВЛЕНО: використовуємо buttonAlpha замість currentAlpha з delay
+        int bgAlpha = (int) (buttonAlpha * (isHovered ? 100 : 70));
+        int borderAlpha = (int) (buttonAlpha * 120);
 
         // Background with blur effect simulation
         context.fill(x, y, x + width, y + height,
@@ -257,12 +250,12 @@ public class AquaMainMenu extends Screen {
                 new Color(ACCENT_CYAN.getRed(), ACCENT_CYAN.getGreen(), ACCENT_CYAN.getBlue(), borderAlpha / 2).getRGB());
 
         // Button text with shadow
-        String text = button.getMessage().getString();
+        String text = button.text;
         int textWidth = client.textRenderer.getWidth(text);
         int textX = x + (width - textWidth) / 2;
         int textY = y + (height - 8) / 2;
 
-        int textAlpha = (int) (currentAlpha * 255);
+        int textAlpha = (int) (buttonAlpha * 255);
 
         // Text shadow
         context.drawText(client.textRenderer, text, textX + 1, textY + 1,
@@ -275,7 +268,7 @@ public class AquaMainMenu extends Screen {
         // Hover glow effect
         if (isHovered) {
             float glowIntensity = (float) (Math.sin(animationTick * 0.1f) * 0.3f + 0.7f);
-            int glowAlpha = (int) (currentAlpha * glowIntensity * 30);
+            int glowAlpha = Math.max(0, Math.min(255, (int) (buttonAlpha * glowIntensity * 30)));
 
             // Outer glow
             for (int i = 1; i <= 3; i++) {
@@ -286,7 +279,37 @@ public class AquaMainMenu extends Screen {
     }
 
     @Override
+    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        if (button == 0) { // Left click
+            for (CustomButton customButton : customButtons) {
+                if (mouseX >= customButton.x && mouseX <= customButton.x + customButton.width &&
+                        mouseY >= customButton.y && mouseY <= customButton.y + customButton.height) {
+                    customButton.action.run();
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    @Override
     public boolean shouldPause() {
         return false;
+    }
+
+    // Внутрішній клас для кастомних кнопок
+    private static class CustomButton {
+        public final String text;
+        public final int x, y, width, height;
+        public final Runnable action;
+
+        public CustomButton(String text, int x, int y, int width, int height, Runnable action) {
+            this.text = text;
+            this.x = x;
+            this.y = y;
+            this.width = width;
+            this.height = height;
+            this.action = action;
+        }
     }
 }

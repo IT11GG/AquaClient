@@ -24,18 +24,20 @@ public class AquaSettingsScreen extends Screen {
     private int padding = 20;
     private int settingHeight = 35;
 
-    // Colors
+    // Colors - ВИПРАВЛЕНО: всі alpha значення в діапазоні 0-255
     private static final Color BG_PRIMARY = new Color(11, 15, 25, 240);
     private static final Color BG_SECONDARY = new Color(16, 23, 39, 220);
     private static final Color BG_TERTIARY = new Color(21, 32, 54, 180);
-    private static final Color ACCENT_BLUE = new Color(59, 130, 246);
-    private static final Color ACCENT_PURPLE = new Color(139, 92, 246);
-    private static final Color ACCENT_GREEN = new Color(34, 197, 94);
-    private static final Color ACCENT_RED = new Color(239, 68, 68);
-    private static final Color TEXT_PRIMARY = new Color(248, 250, 252);
-    private static final Color TEXT_SECONDARY = new Color(148, 163, 184);
-    private static final Color TEXT_MUTED = new Color(100, 116, 139);
+    private static final Color ACCENT_BLUE = new Color(59, 130, 246, 255);
+    private static final Color ACCENT_PURPLE = new Color(139, 92, 246, 255);
+    private static final Color ACCENT_GREEN = new Color(34, 197, 94, 255);
+    private static final Color ACCENT_RED = new Color(239, 68, 68, 255);
+    private static final Color TEXT_PRIMARY = new Color(248, 250, 252, 255);
+    private static final Color TEXT_SECONDARY = new Color(148, 163, 184, 255);
+    private static final Color TEXT_MUTED = new Color(100, 116, 139, 255);
     private static final Color BORDER_LIGHT = new Color(71, 85, 105, 100);
+    private static final Color BUTTON_BG = new Color(30, 41, 59, 200);
+    private static final Color BUTTON_HOVER = new Color(51, 65, 85, 220);
 
     // Setting categories
     private final String[] tabNames = {"Загальні", "GUI", "Модулі", "Про програму"};
@@ -45,6 +47,9 @@ public class AquaSettingsScreen extends Screen {
     private List<Setting> generalSettings;
     private List<Setting> guiSettings;
     private List<Setting> moduleSettings;
+
+    // Список кастомних кнопок
+    private List<CustomButton> customButtons = new ArrayList<>();
 
     public AquaSettingsScreen(Screen parent) {
         super(Text.literal("Налаштування AquaClient"));
@@ -79,17 +84,32 @@ public class AquaSettingsScreen extends Screen {
     protected void init() {
         super.init();
 
+        // Очищуємо список кнопок
+        customButtons.clear();
+
+        // Фіксовані розміри кнопок
+        int buttonWidth = 120;
+        int buttonHeight = 30;
+
         // Back button
-        this.addDrawableChild(ButtonWidget.builder(
-                Text.literal("← Назад"),
-                btn -> mc.setScreen(parent)
-        ).dimensions(padding, this.height - 50, 120, 30).build());
+        customButtons.add(new CustomButton(
+                "← Назад",
+                padding,
+                this.height - 50,
+                buttonWidth,
+                buttonHeight,
+                () -> mc.setScreen(parent)
+        ));
 
         // Apply button
-        this.addDrawableChild(ButtonWidget.builder(
-                Text.literal("Застосувати"),
-                btn -> applySettings()
-        ).dimensions(this.width - padding - 120, this.height - 50, 120, 30).build());
+        customButtons.add(new CustomButton(
+                "Застосувати",
+                this.width - padding - buttonWidth,
+                this.height - 50,
+                buttonWidth,
+                buttonHeight,
+                this::applySettings
+        ));
     }
 
     @Override
@@ -112,7 +132,8 @@ public class AquaSettingsScreen extends Screen {
         // Settings content
         renderSettingsContent(context, mouseX, mouseY);
 
-        super.render(context, mouseX, mouseY, delta);
+        // Render custom buttons
+        renderCustomButtons(context, mouseX, mouseY);
     }
 
     private void updateAnimations(float delta) {
@@ -127,10 +148,10 @@ public class AquaSettingsScreen extends Screen {
         // Similar to main menu background
         context.fill(0, 0, this.width, this.height, BG_PRIMARY.getRGB());
 
-        // Animated waves
+        // Animated waves - ВИПРАВЛЕНО: обмежено alpha значення
         for (int y = 0; y < this.height; y += 3) {
             float wave = (float) Math.sin((y + animationTime * 25) * 0.008f) * 0.05f + 0.02f;
-            int alpha = (int) (wave * 255);
+            int alpha = Math.max(0, Math.min(255, (int) (wave * 255)));
             context.fill(0, y, this.width, y + 3, new Color(59, 130, 246, alpha).getRGB());
         }
     }
@@ -291,7 +312,7 @@ public class AquaSettingsScreen extends Screen {
         int toggleHeight = 24;
 
         boolean isOn = setting.boolValue;
-        Color bgColor = isOn ? ACCENT_GREEN : new Color(60, 60, 60);
+        Color bgColor = isOn ? ACCENT_GREEN : new Color(60, 60, 60, 255);
         Color switchColor = TEXT_PRIMARY;
 
         // Toggle background
@@ -418,6 +439,27 @@ public class AquaSettingsScreen extends Screen {
         context.drawText(mc.textRenderer, "CLIENT", logoX + 25, logoY + 65, TEXT_PRIMARY.getRGB(), false);
     }
 
+    private void renderCustomButtons(DrawContext context, int mouseX, int mouseY) {
+        for (CustomButton button : customButtons) {
+            boolean isHovered = mouseX >= button.x && mouseX <= button.x + button.width &&
+                    mouseY >= button.y && mouseY <= button.y + button.height;
+
+            // Button background
+            Color bgColor = isHovered ? BUTTON_HOVER : new Color(BUTTON_BG.getRed(), BUTTON_BG.getGreen(), BUTTON_BG.getBlue(), 200);
+            context.fill(button.x, button.y, button.x + button.width, button.y + button.height, bgColor.getRGB());
+
+            // Button border
+            drawGradientBorder(context, button.x, button.y, button.width, button.height, 1);
+
+            // Button text
+            int textWidth = mc.textRenderer.getWidth(button.text);
+            int textX = button.x + (button.width - textWidth) / 2;
+            int textY = button.y + (button.height - 8) / 2;
+
+            context.drawText(mc.textRenderer, button.text, textX, textY, TEXT_PRIMARY.getRGB(), false);
+        }
+    }
+
     private List<Setting> getCurrentSettings() {
         return switch (selectedTab) {
             case 0 -> generalSettings;
@@ -430,6 +472,15 @@ public class AquaSettingsScreen extends Screen {
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
         if (button == 0) { // Left click
+            // Check custom buttons
+            for (CustomButton customButton : customButtons) {
+                if (mouseX >= customButton.x && mouseX <= customButton.x + customButton.width &&
+                        mouseY >= customButton.y && mouseY <= customButton.y + customButton.height) {
+                    customButton.action.run();
+                    return true;
+                }
+            }
+
             // Tab selection
             int sidebarX = padding + 10;
             int sidebarY = padding + 70;
@@ -455,7 +506,7 @@ public class AquaSettingsScreen extends Screen {
             }
         }
 
-        return super.mouseClicked(mouseX, mouseY, button);
+        return false;
     }
 
     private void handleSettingClick(Setting setting, double mouseX, double mouseY) {
@@ -520,6 +571,12 @@ public class AquaSettingsScreen extends Screen {
             int b = (int) (startColor.getBlue() + (endColor.getBlue() - startColor.getBlue()) * progress);
             int a = (int) (startColor.getAlpha() + (endColor.getAlpha() - startColor.getAlpha()) * progress);
 
+            // ВИПРАВЛЕНО: обмежуємо всі значення кольорів
+            r = Math.max(0, Math.min(255, r));
+            g = Math.max(0, Math.min(255, g));
+            b = Math.max(0, Math.min(255, b));
+            a = Math.max(0, Math.min(255, a));
+
             context.fill(x, y + i, x + width, y + i + 1, new Color(r, g, b, a).getRGB());
         }
     }
@@ -559,5 +616,21 @@ public class AquaSettingsScreen extends Screen {
 
     private enum SettingType {
         TOGGLE, SLIDER, LIST, BUTTON
+    }
+
+    // Custom button class
+    private static class CustomButton {
+        public final String text;
+        public final int x, y, width, height;
+        public final Runnable action;
+
+        public CustomButton(String text, int x, int y, int width, int height, Runnable action) {
+            this.text = text;
+            this.x = x;
+            this.y = y;
+            this.width = width;
+            this.height = height;
+            this.action = action;
+        }
     }
 }

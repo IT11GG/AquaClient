@@ -15,7 +15,7 @@ prioritizeChunkUpdates:0
 fullscreen:true
 gamma:1.0
 graphicsMode:0
-guiScale:3
+guiScale:2
 maxFps:120
 mipmapLevels:4
 narrator:0

@@ -1,5 +1,5 @@
-[12:54:09] [main/INFO] (FabricLoader/GameProvider) Loading Minecraft 1.21.1 with Fabric Loader 0.17.2
-[12:54:10] [main/INFO] (FabricLoader) Loading 55 mods:
+[13:16:42] [main/INFO] (FabricLoader/GameProvider) Loading Minecraft 1.21.1 with Fabric Loader 0.17.2
+[13:16:42] [main/INFO] (FabricLoader) Loading 55 mods:
 	- aquaclient 1.0.0
 	- fabric-api 0.116.5+1.21.1
 	- fabric-api-base 0.4.42+6573ed8c19
@@ -55,83 +55,35 @@
 	- java 21
 	- minecraft 1.21.1
 	- mixinextras 0.5.0
-[12:54:10] [main/INFO] (FabricLoader/Mixin) SpongePowered MIXIN Subsystem Version=0.8.7 Source=file:/C:/Users/gamep/.gradle/caches/modules-2/files-2.1/net.fabricmc/sponge-mixin/0.16.3+mixin.0.8.7/3e535042688d1265447e52ad86950b7d9678a5fa/sponge-mixin-0.16.3+mixin.0.8.7.jar Service=Knot/Fabric Env=CLIENT
-[12:54:10] [main/INFO] (FabricLoader/Mixin) Loaded Fabric development mappings for mixin remapper!
-[12:54:10] [main/INFO] (FabricLoader/Mixin) Compatibility level set to JAVA_17
-[12:54:10] [main/INFO] (FabricLoader/Mixin) Compatibility level set to JAVA_21
-[12:54:12] [main/INFO] (FabricLoader/MixinExtras|Service) Initializing MixinExtras via com.llamalad7.mixinextras.service.MixinExtrasServiceImpl(version=0.5.0).
-[12:54:14] [Datafixer Bootstrap/INFO] (Minecraft) 226 Datafixer optimizations took 740 milliseconds
-[12:54:23] [Render thread/INFO] (Minecraft) Environment: Environment[sessionHost=https://sessionserver.mojang.com, servicesHost=https://api.minecraftservices.com, name=PROD]
-[12:54:23] [Render thread/INFO] (Minecraft) Setting user: Player922
-[12:54:23] [Render thread/INFO] (Indigo) [Indigo] Registering Indigo renderer!
-[12:54:24] [Render thread/INFO] (Minecraft) Backend library: LWJGL version 3.3.3-snapshot
-[12:54:26] [Render thread/INFO] (Minecraft) Reloading ResourceManager: fabric, aquaclient, fabric-api, fabric-api-base, fabric-api-lookup-api-v1, fabric-biome-api-v1, fabric-block-api-v1, fabric-block-view-api-v2, fabric-blockrenderlayer-v1, fabric-client-tags-api-v1, fabric-command-api-v1, fabric-command-api-v2, fabric-commands-v0, fabric-content-registries-v0, fabric-convention-tags-v1, fabric-convention-tags-v2, fabric-crash-report-info-v1, fabric-data-attachment-api-v1, fabric-data-generation-api-v1, fabric-dimensions-v1, fabric-entity-events-v1, fabric-events-interaction-v0, fabric-game-rule-api-v1, fabric-gametest-api-v1, fabric-item-api-v1, fabric-item-group-api-v1, fabric-key-binding-api-v1, fabric-keybindings-v0, fabric-lifecycle-events-v1, fabric-loot-api-v2, fabric-loot-api-v3, fabric-message-api-v1, fabric-model-loading-api-v1, fabric-networking-api-v1, fabric-object-builder-api-v1, fabric-particles-v1, fabric-recipe-api-v1, fabric-registry-sync-v0, fabric-renderer-api-v1, fabric-renderer-indigo, fabric-renderer-registries-v1, fabric-rendering-data-attachment-v1, fabric-rendering-fluids-v1, fabric-rendering-v0, fabric-rendering-v1, fabric-resource-conditions-api-v1, fabric-resource-loader-v0, fabric-screen-api-v1, fabric-screen-handler-api-v1, fabric-sound-api-v1, fabric-transfer-api-v1, fabric-transitive-access-wideners-v1, fabricloader, vanilla
-[12:54:26] [Worker-Main-13/INFO] (Minecraft) Found unifont_all_no_pua-15.1.05.hex, loading
-[12:54:26] [Worker-Main-22/INFO] (Minecraft) Found unifont_jp_patch-15.1.05.hex, loading
-[12:54:28] [Render thread/WARN] (Minecraft) Missing sound for event: minecraft:item.goat_horn.play
-[12:54:28] [Render thread/WARN] (Minecraft) Missing sound for event: minecraft:entity.goat.screaming.horn_break
-[12:54:28] [Render thread/INFO] (Minecraft) OpenAL initialized on device OpenAL Soft on Headphones (2- Philips UH202 Stereo)
-[12:54:28] [Render thread/INFO] (Minecraft) Sound engine started
-[12:54:28] [Render thread/INFO] (Minecraft) Created: 1024x512x4 minecraft:textures/atlas/blocks.png-atlas
-[12:54:28] [Render thread/INFO] (Minecraft) Created: 256x256x4 minecraft:textures/atlas/signs.png-atlas
-[12:54:28] [Render thread/INFO] (Minecraft) Created: 512x512x4 minecraft:textures/atlas/shield_patterns.png-atlas
-[12:54:28] [Render thread/INFO] (Minecraft) Created: 512x512x4 minecraft:textures/atlas/banner_patterns.png-atlas
-[12:54:28] [Render thread/INFO] (Minecraft) Created: 1024x1024x4 minecraft:textures/atlas/armor_trims.png-atlas
-[12:54:28] [Render thread/INFO] (Minecraft) Created: 128x64x4 minecraft:textures/atlas/decorated_pot.png-atlas
-[12:54:28] [Render thread/INFO] (Minecraft) Created: 256x256x4 minecraft:textures/atlas/chest.png-atlas
-[12:54:28] [Render thread/INFO] (Minecraft) Created: 512x256x4 minecraft:textures/atlas/beds.png-atlas
-[12:54:28] [Render thread/INFO] (Minecraft) Created: 512x256x4 minecraft:textures/atlas/shulker_boxes.png-atlas
-[12:54:29] [Render thread/INFO] (Minecraft) Created: 512x256x0 minecraft:textures/atlas/particles.png-atlas
-[12:54:29] [Render thread/INFO] (Minecraft) Created: 512x256x0 minecraft:textures/atlas/paintings.png-atlas
-[12:54:29] [Render thread/INFO] (Minecraft) Created: 256x128x0 minecraft:textures/atlas/mob_effects.png-atlas
-[12:54:29] [Render thread/INFO] (Minecraft) Created: 64x64x0 minecraft:textures/atlas/map_decorations.png-atlas
-[12:54:29] [Render thread/INFO] (Minecraft) Created: 1024x512x0 minecraft:textures/atlas/gui.png-atlas
-[12:54:29] [Render thread/WARN] (Minecraft) Shader rendertype_entity_translucent_emissive could not find sampler named Sampler2 in the specified shader program.
-[12:54:39] [Render thread/INFO] (Minecraft) Loaded 1290 recipes
-[12:54:39] [Render thread/INFO] (Minecraft) Loaded 1399 advancements
-[12:54:40] [Render thread/INFO] (BiomeModificationImpl) Applied 0 biome modifications to 0 of 64 new biomes in 2.358 ms
-[12:54:40] [Server thread/INFO] (Minecraft) Starting integrated minecraft server version 1.21.1
-[12:54:40] [Server thread/INFO] (Minecraft) Generating keypair
-[12:54:41] [Server thread/INFO] (Minecraft) Preparing start region for dimension minecraft:overworld
-[12:54:42] [Render thread/INFO] (Minecraft) Preparing spawn area: 0%
-[12:54:42] [Render thread/INFO] (Minecraft) Preparing spawn area: 0%
-[12:54:42] [Render thread/INFO] (Minecraft) Time elapsed: 588 ms
-[12:54:42] [Server thread/INFO] (Minecraft) Changing view distance to 12, from 10
-[12:54:42] [Server thread/INFO] (Minecraft) Changing simulation distance to 12, from 0
-[12:54:43] [Server thread/INFO] (Minecraft) Player922[local:E:82cd77ca] logged in with entity id 4 at (-8336.300000011921, 66.17185865179745, -8156.300000011921)
-[12:54:43] [Server thread/INFO] (Minecraft) Player922 joined the game
-[12:54:44] [Render thread/INFO] (Minecraft) Loaded 2 advancements
-[12:54:46] [Render thread/INFO] (Minecraft) Loaded 11 advancements
-[12:54:50] [Render thread/ERROR] (Minecraft) Reported exception thrown!
-net.minecraft.util.crash.CrashException: Rendering screen
-	at knot/net.minecraft.client.render.GameRenderer.render(GameRenderer.java:922) ~[minecraft-merged-48f5f74c97-1.21.1-net.fabricmc.yarn.1_21_1.1.21.1+build.3-v2.jar:?]
-	at knot/net.minecraft.client.MinecraftClient.render(MinecraftClient.java:1285) ~[minecraft-merged-48f5f74c97-1.21.1-net.fabricmc.yarn.1_21_1.1.21.1+build.3-v2.jar:?]
-	at knot/net.minecraft.client.MinecraftClient.run(MinecraftClient.java:882) [minecraft-merged-48f5f74c97-1.21.1-net.fabricmc.yarn.1_21_1.1.21.1+build.3-v2.jar:?]
-	at knot/net.minecraft.client.main.Main.main(Main.java:256) [minecraft-merged-48f5f74c97-1.21.1-net.fabricmc.yarn.1_21_1.1.21.1+build.3-v2.jar:?]
-	at net.fabricmc.loader.impl.game.minecraft.MinecraftGameProvider.launch(MinecraftGameProvider.java:506) [fabric-loader-0.17.2.jar:?]
-	at net.fabricmc.loader.impl.launch.knot.Knot.launch(Knot.java:72) [fabric-loader-0.17.2.jar:?]
-	at net.fabricmc.loader.impl.launch.knot.KnotClient.main(KnotClient.java:23) [fabric-loader-0.17.2.jar:?]
-	at net.fabricmc.devlaunchinjector.Main.main(Main.java:86) [dev-launch-injector-0.2.1+build.8.jar:?]
-Caused by: java.lang.IllegalArgumentException: Color parameter outside of expected range: Alpha
-	at java.desktop/java.awt.Color.testColorValueRange(Color.java:312) ~[?:?]
-	at java.desktop/java.awt.Color.<init>(Color.java:397) ~[?:?]
-	at knot/com.drastic193.aquaclient.gui.AquaClickGuiScreen.renderAnimatedBackground(AquaClickGuiScreen.java:135) ~[main/:?]
-	at knot/com.drastic193.aquaclient.gui.AquaClickGuiScreen.render(AquaClickGuiScreen.java:81) ~[main/:?]
-	at knot/net.minecraft.client.gui.screen.Screen.renderWithTooltip(Screen.java:117) ~[minecraft-merged-48f5f74c97-1.21.1-net.fabricmc.yarn.1_21_1.1.21.1+build.3-v2.jar:?]
-	at knot/net.minecraft.client.render.GameRenderer.mixinextras$bridge$renderWithTooltip$177(GameRenderer.java) ~[minecraft-merged-48f5f74c97-1.21.1-net.fabricmc.yarn.1_21_1.1.21.1+build.3-v2.jar:?]
-	at knot/net.minecraft.client.render.GameRenderer.wrapOperation$zmb000$fabric-screen-api-v1$onRenderScreen(GameRenderer.java:2086) ~[minecraft-merged-48f5f74c97-1.21.1-net.fabricmc.yarn.1_21_1.1.21.1+build.3-v2.jar:?]
-	at knot/net.minecraft.client.render.GameRenderer.render(GameRenderer.java:913) ~[minecraft-merged-48f5f74c97-1.21.1-net.fabricmc.yarn.1_21_1.1.21.1+build.3-v2.jar:?]
-	... 7 more
-[12:54:51] [Server thread/INFO] (Minecraft) Stopping server
-[12:54:51] [Server thread/INFO] (Minecraft) Saving players
-[12:54:51] [Server thread/INFO] (Minecraft) Player922 lost connection: Server closed
-[12:54:51] [Server thread/INFO] (Minecraft) Player922 left the game
-[12:54:51] [Server thread/INFO] (Minecraft) Stopping singleplayer server as player logged out
-[12:54:51] [Server thread/INFO] (Minecraft) Saving worlds
-[12:54:51] [Server thread/INFO] (Minecraft) Saving chunks for level 'ServerLevel[New World]'/minecraft:overworld
-[12:54:51] [Server thread/INFO] (Minecraft) Saving chunks for level 'ServerLevel[New World]'/minecraft:the_nether
-[12:54:51] [Server thread/INFO] (Minecraft) Saving chunks for level 'ServerLevel[New World]'/minecraft:the_end
-[12:54:51] [Server thread/INFO] (Minecraft) ThreadedAnvilChunkStorage (New World): All chunks are saved
-[12:54:51] [Server thread/INFO] (Minecraft) ThreadedAnvilChunkStorage (DIM-1): All chunks are saved
-[12:54:51] [Server thread/INFO] (Minecraft) ThreadedAnvilChunkStorage (DIM1): All chunks are saved
-[12:54:51] [Server thread/INFO] (Minecraft) ThreadedAnvilChunkStorage: All dimensions are saved
+[13:16:43] [main/INFO] (FabricLoader/Mixin) SpongePowered MIXIN Subsystem Version=0.8.7 Source=file:/C:/Users/gamep/.gradle/caches/modules-2/files-2.1/net.fabricmc/sponge-mixin/0.16.3+mixin.0.8.7/3e535042688d1265447e52ad86950b7d9678a5fa/sponge-mixin-0.16.3+mixin.0.8.7.jar Service=Knot/Fabric Env=CLIENT
+[13:16:43] [main/INFO] (FabricLoader/Mixin) Loaded Fabric development mappings for mixin remapper!
+[13:16:43] [main/INFO] (FabricLoader/Mixin) Compatibility level set to JAVA_21
+[13:16:45] [main/INFO] (FabricLoader/MixinExtras|Service) Initializing MixinExtras via com.llamalad7.mixinextras.service.MixinExtrasServiceImpl(version=0.5.0).
+[13:16:46] [Datafixer Bootstrap/INFO] (Minecraft) 226 Datafixer optimizations took 683 milliseconds
+[13:16:55] [Render thread/INFO] (Minecraft) Environment: Environment[sessionHost=https://sessionserver.mojang.com, servicesHost=https://api.minecraftservices.com, name=PROD]
+[13:16:55] [Render thread/INFO] (Minecraft) Setting user: Player544
+[13:16:56] [Render thread/INFO] (Indigo) [Indigo] Registering Indigo renderer!
+[13:16:57] [Render thread/INFO] (Minecraft) Backend library: LWJGL version 3.3.3-snapshot
+[13:16:59] [Render thread/INFO] (Minecraft) Reloading ResourceManager: fabric, aquaclient, fabric-api, fabric-api-base, fabric-api-lookup-api-v1, fabric-biome-api-v1, fabric-block-api-v1, fabric-block-view-api-v2, fabric-blockrenderlayer-v1, fabric-client-tags-api-v1, fabric-command-api-v1, fabric-command-api-v2, fabric-commands-v0, fabric-content-registries-v0, fabric-convention-tags-v1, fabric-convention-tags-v2, fabric-crash-report-info-v1, fabric-data-attachment-api-v1, fabric-data-generation-api-v1, fabric-dimensions-v1, fabric-entity-events-v1, fabric-events-interaction-v0, fabric-game-rule-api-v1, fabric-gametest-api-v1, fabric-item-api-v1, fabric-item-group-api-v1, fabric-key-binding-api-v1, fabric-keybindings-v0, fabric-lifecycle-events-v1, fabric-loot-api-v2, fabric-loot-api-v3, fabric-message-api-v1, fabric-model-loading-api-v1, fabric-networking-api-v1, fabric-object-builder-api-v1, fabric-particles-v1, fabric-recipe-api-v1, fabric-registry-sync-v0, fabric-renderer-api-v1, fabric-renderer-indigo, fabric-renderer-registries-v1, fabric-rendering-data-attachment-v1, fabric-rendering-fluids-v1, fabric-rendering-v0, fabric-rendering-v1, fabric-resource-conditions-api-v1, fabric-resource-loader-v0, fabric-screen-api-v1, fabric-screen-handler-api-v1, fabric-sound-api-v1, fabric-transfer-api-v1, fabric-transitive-access-wideners-v1, fabricloader, vanilla
+[13:16:59] [Worker-Main-13/INFO] (Minecraft) Found unifont_all_no_pua-15.1.05.hex, loading
+[13:16:59] [Worker-Main-12/INFO] (Minecraft) Found unifont_jp_patch-15.1.05.hex, loading
+[13:17:01] [Render thread/WARN] (Minecraft) Missing sound for event: minecraft:item.goat_horn.play
+[13:17:01] [Render thread/WARN] (Minecraft) Missing sound for event: minecraft:entity.goat.screaming.horn_break
+[13:17:01] [Render thread/INFO] (Minecraft) OpenAL initialized on device OpenAL Soft on Headphones (2- Philips UH202 Stereo)
+[13:17:01] [Render thread/INFO] (Minecraft) Sound engine started
+[13:17:01] [Render thread/INFO] (Minecraft) Created: 1024x512x4 minecraft:textures/atlas/blocks.png-atlas
+[13:17:01] [Render thread/INFO] (Minecraft) Created: 256x256x4 minecraft:textures/atlas/signs.png-atlas
+[13:17:01] [Render thread/INFO] (Minecraft) Created: 512x512x4 minecraft:textures/atlas/shield_patterns.png-atlas
+[13:17:01] [Render thread/INFO] (Minecraft) Created: 512x512x4 minecraft:textures/atlas/banner_patterns.png-atlas
+[13:17:01] [Render thread/INFO] (Minecraft) Created: 1024x1024x4 minecraft:textures/atlas/armor_trims.png-atlas
+[13:17:01] [Render thread/INFO] (Minecraft) Created: 128x64x4 minecraft:textures/atlas/decorated_pot.png-atlas
+[13:17:01] [Render thread/INFO] (Minecraft) Created: 256x256x4 minecraft:textures/atlas/chest.png-atlas
+[13:17:01] [Render thread/INFO] (Minecraft) Created: 512x256x4 minecraft:textures/atlas/shulker_boxes.png-atlas
+[13:17:01] [Render thread/INFO] (Minecraft) Created: 512x256x4 minecraft:textures/atlas/beds.png-atlas
+[13:17:02] [Render thread/INFO] (Minecraft) Created: 512x256x0 minecraft:textures/atlas/particles.png-atlas
+[13:17:02] [Render thread/INFO] (Minecraft) Created: 512x256x0 minecraft:textures/atlas/paintings.png-atlas
+[13:17:02] [Render thread/INFO] (Minecraft) Created: 256x128x0 minecraft:textures/atlas/mob_effects.png-atlas
+[13:17:02] [Render thread/INFO] (Minecraft) Created: 64x64x0 minecraft:textures/atlas/map_decorations.png-atlas
+[13:17:02] [Render thread/INFO] (Minecraft) Created: 1024x512x0 minecraft:textures/atlas/gui.png-atlas
+[13:17:02] [Render thread/WARN] (Minecraft) Shader rendertype_entity_translucent_emissive could not find sampler named Sampler2 in the specified shader program.
+[13:17:08] [Render thread/INFO] (Minecraft) Stopping!

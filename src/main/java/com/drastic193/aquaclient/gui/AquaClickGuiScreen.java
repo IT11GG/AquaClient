@@ -33,17 +33,17 @@ public class AquaClickGuiScreen extends Screen {
     private int moduleHeight = 40;
     private int categoryHeight = 45;
 
-    // Modern color scheme
+    // Modern color scheme - ВИПРАВЛЕНО: всі alpha значення в діапазоні 0-255
     private static final Color BG_PRIMARY = new Color(11, 15, 25, 240);
     private static final Color BG_SECONDARY = new Color(16, 23, 39, 220);
     private static final Color BG_TERTIARY = new Color(21, 32, 54, 180);
-    private static final Color ACCENT_BLUE = new Color(59, 130, 246);
-    private static final Color ACCENT_PURPLE = new Color(139, 92, 246);
-    private static final Color ACCENT_GREEN = new Color(34, 197, 94);
-    private static final Color ACCENT_RED = new Color(239, 68, 68);
-    private static final Color TEXT_PRIMARY = new Color(248, 250, 252);
-    private static final Color TEXT_SECONDARY = new Color(148, 163, 184);
-    private static final Color TEXT_MUTED = new Color(100, 116, 139);
+    private static final Color ACCENT_BLUE = new Color(59, 130, 246, 255);
+    private static final Color ACCENT_PURPLE = new Color(139, 92, 246, 255);
+    private static final Color ACCENT_GREEN = new Color(34, 197, 94, 255);
+    private static final Color ACCENT_RED = new Color(239, 68, 68, 255);
+    private static final Color TEXT_PRIMARY = new Color(248, 250, 252, 255);
+    private static final Color TEXT_SECONDARY = new Color(148, 163, 184, 255);
+    private static final Color TEXT_MUTED = new Color(100, 116, 139, 255);
     private static final Color BORDER_LIGHT = new Color(71, 85, 105, 100);
 
     // Category colors
@@ -123,13 +123,13 @@ public class AquaClickGuiScreen extends Screen {
         // Base background
         context.fill(0, 0, width, height, BG_PRIMARY.getRGB());
 
-        // Animated gradient waves
+        // Animated gradient waves - ВИПРАВЛЕНО: обмежено alpha значення
         for (int y = 0; y < height; y += 2) {
             float wave1 = (float) Math.sin((y + animationTime * 30) * 0.01f) * 0.1f + 0.05f;
             float wave2 = (float) Math.cos((y + animationTime * 20) * 0.008f) * 0.08f + 0.04f;
 
-            int alpha1 = (int) (wave1 * 255);
-            int alpha2 = (int) (wave2 * 255);
+            int alpha1 = Math.max(0, Math.min(255, (int) (wave1 * 255)));
+            int alpha2 = Math.max(0, Math.min(255, (int) (wave2 * 255)));
 
             context.fill(0, y, width, y + 2, new Color(59, 130, 246, alpha1).getRGB());
             context.fill(0, y, width / 3, y + 2, new Color(139, 92, 246, alpha2).getRGB());
@@ -155,13 +155,13 @@ public class AquaClickGuiScreen extends Screen {
             particleX.set(i, x);
             particleY.set(i, y);
 
-            // Render particle with fade effect
+            // Render particle with fade effect - ВИПРАВЛЕНО: обмежено alpha значення
             float alpha = (float) (Math.sin(animationTime * 0.05f + i) * 0.3f + 0.1f);
             if (alpha > 0) {
                 int size = 1 + (i % 2);
+                int alphaInt = Math.max(0, Math.min(255, (int) (alpha * 255)));
                 context.fill((int) x, (int) y, (int) x + size, (int) y + size,
-                        new Color(TEXT_PRIMARY.getRed(), TEXT_PRIMARY.getGreen(), TEXT_PRIMARY.getBlue(),
-                                (int) (alpha * 255)).getRGB());
+                        new Color(TEXT_PRIMARY.getRed(), TEXT_PRIMARY.getGreen(), TEXT_PRIMARY.getBlue(), alphaInt).getRGB());
             }
         }
     }
@@ -242,7 +242,7 @@ public class AquaClickGuiScreen extends Screen {
 
             if (isSelected || animProgress > 0) {
                 Color catColor = CATEGORY_COLORS.get(category);
-                int alpha = (int) ((isSelected ? 80 : 40) + animProgress * 40);
+                int alpha = Math.max(0, Math.min(255, (int) ((isSelected ? 80 : 40) + animProgress * 40)));
 
                 context.fill(sidebarX + 5, catY, sidebarX + sidebarWidth - 5, catY + categoryHeight - 5,
                         new Color(catColor.getRed(), catColor.getGreen(), catColor.getBlue(), alpha).getRGB());
@@ -318,9 +318,9 @@ public class AquaClickGuiScreen extends Screen {
                 context.fill(listX + 5, modY, listX + 9, modY + moduleHeight - 5, categoryColor.getRGB());
             }
 
-            // Hover effect
+            // Hover effect - ВИПРАВЛЕНО: обмежено alpha значення
             if (hoverAnim > 0) {
-                int hoverAlpha = (int) (hoverAnim * 40);
+                int hoverAlpha = Math.max(0, Math.min(255, (int) (hoverAnim * 40)));
                 context.fill(listX + 5, modY, listX + listWidth - 5, modY + moduleHeight - 5,
                         new Color(TEXT_PRIMARY.getRed(), TEXT_PRIMARY.getGreen(), TEXT_PRIMARY.getBlue(), hoverAlpha).getRGB());
             }
@@ -487,6 +487,12 @@ public class AquaClickGuiScreen extends Screen {
             int g = (int) (startColor.getGreen() + (endColor.getGreen() - startColor.getGreen()) * progress);
             int b = (int) (startColor.getBlue() + (endColor.getBlue() - startColor.getBlue()) * progress);
             int a = (int) (startColor.getAlpha() + (endColor.getAlpha() - startColor.getAlpha()) * progress);
+
+            // ВИПРАВЛЕНО: обмежуємо всі значення кольорів
+            r = Math.max(0, Math.min(255, r));
+            g = Math.max(0, Math.min(255, g));
+            b = Math.max(0, Math.min(255, b));
+            a = Math.max(0, Math.min(255, a));
 
             context.fill(x, y + i, x + width, y + i + 1, new Color(r, g, b, a).getRGB());
         }

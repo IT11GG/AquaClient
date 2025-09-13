@@ -14,12 +14,20 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(Block.class)
 public class BlockMixin {
+
     @Inject(method = "shouldDrawSide", at = @At("HEAD"), cancellable = true)
     private static void shouldDrawSide(BlockState state, BlockView world, BlockPos pos, Direction facing, BlockPos neighborPos, CallbackInfoReturnable<Boolean> info) {
-        if (XRay.isVisible(state.getBlock())) {
-            info.setReturnValue(true);
-        } else {
-            info.setReturnValue(false);
+        // Перевіряємо чи увімкнений XRay
+        if (XRay.isXRayEnabled()) {
+            Block block = state.getBlock();
+            // Якщо блок у списку видимих - показуємо його
+            if (XRay.isVisible(block)) {
+                info.setReturnValue(true);
+            } else {
+                // Інакше приховуємо блок (не рендеримо його сторони)
+                info.setReturnValue(false);
+            }
         }
+        // Якщо XRay вимкнений, залишаємо стандартну логіку (не перериваємо виконання)
     }
 }
