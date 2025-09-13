@@ -1,0 +1,12 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "com.drastic193.aquaclient.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "client": [
+    "BlockMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

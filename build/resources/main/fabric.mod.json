@@ -1,0 +1,28 @@
+{
+  "schemaVersion": 1,
+  "id": "aquaclient",
+  "version": "1.0.0",
+  "name": "AquaClient",
+  "description": "Найкращий приватний чит.",
+  "authors": ["drastic193"],
+  "contact": {
+    "homepage": "",
+    "sources": ""
+  },
+  "license": "All Rights Reserved",
+  "icon": "assets/aquaclient/AquaClient.png",
+  "environment": "client",
+  "entrypoints": {
+    "client": ["com.drastic193.aquaclient.client.AquaClientClient"]
+  },
+  "depends": {
+    "fabricloader": ">=0.15.11",
+    "fabric": "*",
+    "minecraft": "~1.21.1",
+    "java": ">=21"
+  },
+  "mixins": [
+    "aquaclient.mixins.json"
+  ]
+
+}

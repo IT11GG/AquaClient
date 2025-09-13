@@ -1,0 +1,14 @@
+{
+  "mappings": {
+    "com/drastic193/aquaclient/mixin/BlockMixin": {
+      "shouldDrawSide": "Lnet/minecraft/class_2248;method_9607(Lnet/minecraft/class_2680;Lnet/minecraft/class_1922;Lnet/minecraft/class_2338;Lnet/minecraft/class_2350;Lnet/minecraft/class_2338;)Z"
+    }
+  },
+  "data": {
+    "named:intermediary": {
+      "com/drastic193/aquaclient/mixin/BlockMixin": {
+        "shouldDrawSide": "Lnet/minecraft/class_2248;method_9607(Lnet/minecraft/class_2680;Lnet/minecraft/class_1922;Lnet/minecraft/class_2338;Lnet/minecraft/class_2350;Lnet/minecraft/class_2338;)Z"
+      }
+    }
+  }
+}
