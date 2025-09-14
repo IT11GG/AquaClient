@@ -1,11 +1,11 @@
 // src/main/java/com/drastic193/aquaclient/client/AquaClientClient.java
 package com.drastic193.aquaclient.client;
 
-import com.drastic193.aquaclient.gui.DeltaClickGuiScreen;
+import com.drastic193.aquaclient.gui.AquaClickGuiScreen;
 import com.drastic193.aquaclient.module.Module;
 import com.drastic193.aquaclient.module.ModuleManager;
-import com.drastic193.aquaclient.screen.DeltaMainMenu;
-import com.drastic193.aquaclient.screen.DeltaMultiplayerScreen;
+import com.drastic193.aquaclient.screen.AquaMainMenu;
+import com.drastic193.aquaclient.screen.AquaMultiplayerScreen;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
@@ -26,14 +26,14 @@ public class AquaClientClient implements ClientModInitializer {
         INSTANCE = this;
         ModuleManager.init();
 
-        // Replace main menu with Delta style
+        // Replace main menu with Aqua style
         ScreenEvents.AFTER_INIT.register((client, screen, scaledWidth, scaledHeight) -> {
             if (screen instanceof TitleScreen) {
-                client.setScreen(new DeltaMainMenu());
+                client.setScreen(new AquaMainMenu());
             }
-            // Replace multiplayer screen with Delta style
-            else if (screen instanceof MultiplayerScreen && !(screen instanceof DeltaMultiplayerScreen)) {
-                client.setScreen(new DeltaMultiplayerScreen(((MultiplayerScreen) screen).parent));
+            // Replace multiplayer screen with Aqua style
+            else if (screen instanceof MultiplayerScreen && !(screen instanceof AquaMultiplayerScreen)) {
+                client.setScreen(new AquaMultiplayerScreen(((MultiplayerScreen) screen).parent));
             }
         });
 
@@ -49,7 +49,7 @@ public class AquaClientClient implements ClientModInitializer {
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
             // Handle GUI opening
             while (openGuiKey.wasPressed()) {
-                client.setScreen(new DeltaClickGuiScreen());
+                client.setScreen(new AquaClickGuiScreen());
             }
 
             // Update modules
@@ -58,6 +58,6 @@ public class AquaClientClient implements ClientModInitializer {
             }
         });
 
-        System.out.println("AquaClient Delta Edition initialized successfully!");
+        System.out.println("AquaClient Modern Edition initialized successfully!");
     }
 }

@@ -1,4 +1,4 @@
-// File: src/main/java/com/drastic193/aquaclient/screen/DeltaMainMenu.java
+// File: src/main/java/com/drastic193/aquaclient/screen/AquaMainMenu.java
 package com.drastic193.aquaclient.screen;
 
 import net.minecraft.client.MinecraftClient;
@@ -13,14 +13,14 @@ import java.awt.Color;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DeltaMainMenu extends Screen {
+public class AquaMainMenu extends Screen {
     private final MinecraftClient client = MinecraftClient.getInstance();
     private float animationTick = 0.0f;
     private float logoScale = 1.0f;
     private float particleTime = 0.0f;
     private List<Particle> particles = new ArrayList<>();
 
-    // Modern Delta colors
+    // Modern Aqua colors
     private static final Color BG_MAIN = new Color(12, 12, 16, 255);
     private static final Color BG_SECONDARY = new Color(18, 18, 24, 200);
     private static final Color BG_TERTIARY = new Color(24, 24, 32, 180);
@@ -41,10 +41,10 @@ public class DeltaMainMenu extends Screen {
     private static final Color BUTTON_ACCENT = new Color(138, 43, 226, 100);
 
     // Custom buttons list
-    private List<DeltaButton> deltaButtons = new ArrayList<>();
+    private List<AquaButton> aquaButtons = new ArrayList<>();
 
-    public DeltaMainMenu() {
-        super(Text.literal("Delta Main Menu"));
+    public AquaMainMenu() {
+        super(Text.literal("Aqua Main Menu"));
         initParticles();
     }
 
@@ -57,7 +57,7 @@ public class DeltaMainMenu extends Screen {
     @Override
     protected void init() {
         super.init();
-        deltaButtons.clear();
+        aquaButtons.clear();
 
         int buttonWidth = 260;
         int buttonHeight = 45;
@@ -66,7 +66,7 @@ public class DeltaMainMenu extends Screen {
         int spacing = 55;
 
         // Main buttons
-        deltaButtons.add(new DeltaButton(
+        aquaButtons.add(new AquaButton(
                 "Singleplayer",
                 "▶ Start your adventure",
                 centerX - buttonWidth / 2,
@@ -77,7 +77,7 @@ public class DeltaMainMenu extends Screen {
                 () -> client.setScreen(new SelectWorldScreen(this))
         ));
 
-        deltaButtons.add(new DeltaButton(
+        aquaButtons.add(new AquaButton(
                 "Multiplayer",
                 "🌐 Join servers",
                 centerX - buttonWidth / 2,
@@ -88,7 +88,7 @@ public class DeltaMainMenu extends Screen {
                 () -> client.setScreen(new MultiplayerScreen(this))
         ));
 
-        deltaButtons.add(new DeltaButton(
+        aquaButtons.add(new AquaButton(
                 "Account Manager",
                 "👤 Manage accounts",
                 centerX - buttonWidth / 2,
@@ -96,10 +96,10 @@ public class DeltaMainMenu extends Screen {
                 buttonWidth,
                 buttonHeight,
                 GRADIENT_ACCENT,
-                () -> client.setScreen(new DeltaAccountManager(this))
+                () -> client.setScreen(new AquaAccountManager(this))
         ));
 
-        deltaButtons.add(new DeltaButton(
+        aquaButtons.add(new AquaButton(
                 "Options",
                 "⚙ Game settings",
                 centerX - buttonWidth / 2,
@@ -110,7 +110,7 @@ public class DeltaMainMenu extends Screen {
                 () -> client.setScreen(new OptionsScreen(this, client.options))
         ));
 
-        deltaButtons.add(new DeltaButton(
+        aquaButtons.add(new AquaButton(
                 "Quit Game",
                 "❌ Exit Minecraft",
                 centerX - buttonWidth / 2,
@@ -129,7 +129,7 @@ public class DeltaMainMenu extends Screen {
         logoScale = 1.0f + (float) Math.sin(animationTick * 3.0f) * 0.03f;
 
         // Animated background
-        renderDeltaBackground(context);
+        renderAquaBackground(context);
 
         // Particles
         renderParticles(context);
@@ -140,14 +140,14 @@ public class DeltaMainMenu extends Screen {
         // Version and info
         renderInfo(context);
 
-        // Delta buttons
-        renderDeltaButtons(context, mouseX, mouseY);
+        // Aqua buttons
+        renderAquaButtons(context, mouseX, mouseY);
 
         // Floating elements
         renderFloatingElements(context);
     }
 
-    private void renderDeltaBackground(DrawContext context) {
+    private void renderAquaBackground(DrawContext context) {
         // Dark base background
         context.fill(0, 0, this.width, this.height, BG_MAIN.getRGB());
 
@@ -189,7 +189,7 @@ public class DeltaMainMenu extends Screen {
         }
     }
 
-    private void renderParticles(Context context) {
+    private void renderParticles(DrawContext context) {
         for (Particle particle : particles) {
             particle.update(particleTime);
 
@@ -235,7 +235,7 @@ public class DeltaMainMenu extends Screen {
                 rainbowColor.getRGB(), false);
 
         // Subtitle with typewriter effect
-        String subtitle = "DELTA EDITION";
+        String subtitle = "MODERN EDITION";
         int subtitleWidth = client.textRenderer.getWidth(subtitle);
 
         // Animated dots
@@ -250,7 +250,7 @@ public class DeltaMainMenu extends Screen {
 
     private void renderInfo(DrawContext context) {
         // Version info (bottom left)
-        String version = "AquaClient v2.1 Delta";
+        String version = "AquaClient v2.1 Modern";
         context.drawText(client.textRenderer, version, 15, this.height - 35,
                 TEXT_SECONDARY.getRGB(), false);
 
@@ -287,17 +287,17 @@ public class DeltaMainMenu extends Screen {
         }
     }
 
-    private void renderDeltaButtons(DrawContext context, int mouseX, int mouseY) {
-        for (int i = 0; i < deltaButtons.size(); i++) {
-            DeltaButton button = deltaButtons.get(i);
+    private void renderAquaButtons(DrawContext context, int mouseX, int mouseY) {
+        for (int i = 0; i < aquaButtons.size(); i++) {
+            AquaButton button = aquaButtons.get(i);
             boolean isHovered = mouseX >= button.x && mouseX <= button.x + button.width &&
                     mouseY >= button.y && mouseY <= button.y + button.height;
 
-            renderDeltaButton(context, button, isHovered, i * 0.1f);
+            renderAquaButton(context, button, isHovered, i * 0.1f);
         }
     }
 
-    private void renderDeltaButton(DrawContext context, DeltaButton button, boolean hovered, float delay) {
+    private void renderAquaButton(DrawContext context, AquaButton button, boolean hovered, float delay) {
         // Button animation
         float scale = hovered ? 1.05f : 1.0f;
         float currentScale = lerp(button.currentScale, scale, 0.15f);
@@ -396,7 +396,7 @@ public class DeltaMainMenu extends Screen {
         context.fill(x + radius, y, x + width - radius, y + 1, color.getRGB());
         context.fill(x + radius, y + height - 1, x + width - radius, y + height, color.getRGB());
 
-        // Left and right  
+        // Left and right
         context.fill(x, y + radius, x + 1, y + height - radius, color.getRGB());
         context.fill(x + width - 1, y + radius, x + width, y + height - radius, color.getRGB());
     }
@@ -404,10 +404,10 @@ public class DeltaMainMenu extends Screen {
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
         if (button == 0) { // Left click
-            for (DeltaButton deltaButton : deltaButtons) {
-                if (mouseX >= deltaButton.x && mouseX <= deltaButton.x + deltaButton.width &&
-                        mouseY >= deltaButton.y && mouseY <= deltaButton.y + deltaButton.height) {
-                    deltaButton.action.run();
+            for (AquaButton aquaButton : aquaButtons) {
+                if (mouseX >= aquaButton.x && mouseX <= aquaButton.x + aquaButton.width &&
+                        mouseY >= aquaButton.y && mouseY <= aquaButton.y + aquaButton.height) {
+                    aquaButton.action.run();
                     return true;
                 }
             }
@@ -421,7 +421,7 @@ public class DeltaMainMenu extends Screen {
     }
 
     // Inner classes
-    private static class DeltaButton {
+    private static class AquaButton {
         public final String title;
         public final String subtitle;
         public final int x, y, width, height;
@@ -429,8 +429,8 @@ public class DeltaMainMenu extends Screen {
         public final Runnable action;
         public float currentScale = 1.0f;
 
-        public DeltaButton(String title, String subtitle, int x, int y, int width, int height,
-                           Color accentColor, Runnable action) {
+        public AquaButton(String title, String subtitle, int x, int y, int width, int height,
+                          Color accentColor, Runnable action) {
             this.title = title;
             this.subtitle = subtitle;
             this.x = x;
@@ -452,8 +452,8 @@ public class DeltaMainMenu extends Screen {
         }
 
         public void reset() {
-            x = (float) (Math.random() * DeltaMainMenu.this.width);
-            y = (float) (Math.random() * DeltaMainMenu.this.height);
+            x = (float) (Math.random() * AquaMainMenu.this.width);
+            y = (float) (Math.random() * AquaMainMenu.this.height);
             vx = (float) (Math.random() - 0.5) * 0.5f;
             vy = (float) (Math.random() - 0.5) * 0.5f;
             maxLife = life = (float) Math.random() * 200 + 100;
@@ -468,7 +468,7 @@ public class DeltaMainMenu extends Screen {
             y += vy;
             life -= 1;
 
-            if (life <= 0 || x < 0 || x > DeltaMainMenu.this.width || y < 0 || y > DeltaMainMenu.this.height) {
+            if (life <= 0 || x < 0 || x > AquaMainMenu.this.width || y < 0 || y > AquaMainMenu.this.height) {
                 reset();
             }
         }

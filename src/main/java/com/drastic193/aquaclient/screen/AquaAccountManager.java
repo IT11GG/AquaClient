@@ -1,4 +1,4 @@
-// File: src/main/java/com/drastic193/aquaclient/screen/DeltaAccountManager.java
+// File: src/main/java/com/drastic193/aquaclient/screen/AquaAccountManager.java
 package com.drastic193.aquaclient.screen;
 
 import net.minecraft.client.MinecraftClient;
@@ -13,7 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-public class DeltaAccountManager extends Screen {
+public class AquaAccountManager extends Screen {
     private final Screen parent;
     private final MinecraftClient mc = MinecraftClient.getInstance();
     private float animationTime = 0.0f;
@@ -24,7 +24,7 @@ public class DeltaAccountManager extends Screen {
     private int hoveredAccount = -1;
     private boolean isAddingAccount = false;
 
-    // Colors (Delta style)
+    // Colors (Aqua style)
     private static final Color BG_MAIN = new Color(12, 12, 16, 255);
     private static final Color BG_SECONDARY = new Color(18, 18, 24, 200);
     private static final Color BG_TERTIARY = new Color(24, 24, 32, 180);
@@ -40,9 +40,9 @@ public class DeltaAccountManager extends Screen {
     private static final Color TEXT_DISABLED = new Color(100, 100, 100, 255);
 
     // Mock account storage (in real implementation, save to file)
-    private List<AccountInfo> accounts = new ArrayList<>();
+    private final List<AccountInfo> accounts = new ArrayList<>();
 
-    public DeltaAccountManager(Screen parent) {
+    public AquaAccountManager(Screen parent) {
         super(Text.literal("Account Manager"));
         this.parent = parent;
 
@@ -405,9 +405,10 @@ public class DeltaAccountManager extends Screen {
             username = username.trim();
 
             // Check if account already exists
-            boolean exists = accounts.stream().anyMatch(acc -> acc.username.equalsIgnoreCase(username));
+            final String finalUsername = username; // Make effectively final for lambda
+            boolean exists = accounts.stream().anyMatch(acc -> acc.username.equalsIgnoreCase(finalUsername));
             if (!exists) {
-                accounts.add(new AccountInfo(username, AccountType.CRACKED, false));
+                accounts.add(new AccountInfo(finalUsername, AccountType.CRACKED, false));
                 usernameField.setText("");
                 // In real implementation, save to file here
             }
@@ -420,12 +421,14 @@ public class DeltaAccountManager extends Screen {
 
             // Switch to the selected account (simplified - in real implementation use proper session switching)
             try {
-                // This is a simplified version - real implementation would need proper session handling
-                Session newSession = new Session(account.username, "", "",
+                // Fixed Session constructor with UUID
+                UUID accountUUID = new UUID(0, account.username.hashCode()); // Generate UUID from username
+                Session newSession = new Session(account.username, accountUUID, "",
                         java.util.Optional.empty(), java.util.Optional.empty(), Session.AccountType.LEGACY);
 
                 // Update current account status
-                accounts.forEach(acc -> acc.isOnline = acc.username.equals(account.username));
+                final String finalUsername = account.username; // Make effectively final
+                accounts.forEach(acc -> acc.isOnline = acc.username.equals(finalUsername));
 
                 // In real implementation, you'd need to properly change the session
                 // This is just for demonstration

@@ -1,4 +1,4 @@
-// File: src/main/java/com/drastic193/aquaclient/screen/DeltaMultiplayerScreen.java
+// File: src/main/java/com/drastic193/aquaclient/screen/AquaMultiplayerScreen.java
 package com.drastic193.aquaclient.screen;
 
 import net.minecraft.client.MinecraftClient;
@@ -13,7 +13,7 @@ import java.awt.Color;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DeltaMultiplayerScreen extends MultiplayerScreen {
+public class AquaMultiplayerScreen extends MultiplayerScreen {
     private final MinecraftClient mc = MinecraftClient.getInstance();
     private float animationTime = 0.0f;
 
@@ -25,7 +25,7 @@ public class DeltaMultiplayerScreen extends MultiplayerScreen {
             "1.21.1", "1.21", "1.20.6", "1.20.4", "1.20.1", "1.19.4", "1.19.2", "1.18.2", "1.17.1", "1.16.5"
     };
 
-    // Delta style colors
+    // Aqua style colors
     private static final Color BG_MAIN = new Color(12, 12, 16, 255);
     private static final Color BG_SECONDARY = new Color(18, 18, 24, 200);
     private static final Color BG_TERTIARY = new Color(24, 24, 32, 180);
@@ -40,7 +40,7 @@ public class DeltaMultiplayerScreen extends MultiplayerScreen {
     private static final Color TEXT_SECONDARY = new Color(170, 170, 180, 255);
     private static final Color TEXT_DISABLED = new Color(100, 100, 100, 255);
 
-    public DeltaMultiplayerScreen(Screen parent) {
+    public AquaMultiplayerScreen(Screen parent) {
         super(parent);
     }
 
@@ -61,7 +61,7 @@ public class DeltaMultiplayerScreen extends MultiplayerScreen {
         animationTime += delta * 0.02f;
 
         // Custom background instead of default
-        renderDeltaBackground(context);
+        renderAquaBackground(context);
 
         // Render version switcher
         renderVersionSwitcher(context, mouseX, mouseY);
@@ -73,7 +73,7 @@ public class DeltaMultiplayerScreen extends MultiplayerScreen {
         super.render(context, mouseX, mouseY, delta);
     }
 
-    private void renderDeltaBackground(DrawContext context) {
+    private void renderAquaBackground(DrawContext context) {
         // Dark base background
         context.fill(0, 0, this.width, this.height, BG_MAIN.getRGB());
 
@@ -203,7 +203,7 @@ public class DeltaMultiplayerScreen extends MultiplayerScreen {
         // Quick connect panel
         renderQuickConnectPanel(context);
 
-        // Delta watermark
+        // Aqua watermark
         renderWatermark(context);
     }
 
@@ -275,7 +275,7 @@ public class DeltaMultiplayerScreen extends MultiplayerScreen {
     }
 
     private void renderWatermark(DrawContext context) {
-        String watermark = "AquaClient Delta";
+        String watermark = "AquaClient Modern";
         int watermarkWidth = mc.textRenderer.getWidth(watermark);
 
         // Watermark background with glow

@@ -1,10 +1,10 @@
-// File: src/main/java/com/drastic193/aquaclient/util/DeltaRenderUtils.java
+// File: src/main/java/com/drastic193/aquaclient/util/AquaRenderUtils.java
 package com.drastic193.aquaclient.util;
 
 import net.minecraft.client.gui.DrawContext;
 import java.awt.Color;
 
-public class DeltaRenderUtils {
+public class AquaRenderUtils {
 
     /**
      * Draws a rounded rectangle with proper corner radius
@@ -197,8 +197,7 @@ public class DeltaRenderUtils {
     /**
      * Draws a holographic effect
      */
-    public static void drawHolographic(DrawContext context, int x, int y, int width, int height,
-                                       int radius, float time) {
+    public static void drawHolographic(DrawContext context, int x, int y, int width, int height, float time) {
         // Holographic shimmer lines
         for (int i = 0; i < width + height; i += 8) {
             float shimmer = (float) Math.sin(time * 4 + i * 0.1f) * 0.3f + 0.3f;
