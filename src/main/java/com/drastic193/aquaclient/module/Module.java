@@ -1,4 +1,4 @@
-// src/main/java/com/drastic193/aquaclient/module/Module.java
+// File: src/main/java/com/drastic193/aquaclient/module/Module.java
 package com.drastic193.aquaclient.module;
 
 import net.minecraft.client.MinecraftClient;
@@ -49,6 +49,19 @@ public abstract class Module {
     }
 
     public enum Category {
-        COMBAT, VISUALS, MOVEMENT, MISC
+        COMBAT("Combat"),
+        VISUALS("Visuals"),
+        MOVEMENT("Movement"),
+        MISC("Misc");
+
+        private final String displayName;
+
+        Category(String displayName) {
+            this.displayName = displayName;
+        }
+
+        public String getDisplayName() {
+            return displayName;
+        }
     }
 }

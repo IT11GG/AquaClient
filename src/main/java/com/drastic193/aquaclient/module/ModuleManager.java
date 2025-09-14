@@ -1,4 +1,4 @@
-// src/main/java/com/drastic193/aquaclient/module/ModuleManager.java
+// File: src/main/java/com/drastic193/aquaclient/module/ModuleManager.java
 package com.drastic193.aquaclient.module;
 
 import com.drastic193.aquaclient.module.modules.combat.KillAura;
@@ -40,6 +40,8 @@ public class ModuleManager {
 
         // Misc
         modules.add(new Disabler());
+
+        System.out.println("ModuleManager initialized with " + modules.size() + " modules");
     }
 
     public static List<Module> getModulesByCategory(Module.Category category) {
@@ -50,5 +52,43 @@ public class ModuleManager {
             }
         }
         return categoryModules;
+    }
+
+    public static Module getModule(String name) {
+        return modules.stream()
+                .filter(module -> module.getName().equalsIgnoreCase(name))
+                .findFirst()
+                .orElse(null);
+    }
+
+    public static Module getModule(Class<? extends Module> clazz) {
+        return modules.stream()
+                .filter(module -> module.getClass() == clazz)
+                .findFirst()
+                .orElse(null);
+    }
+
+    public static List<Module> getEnabledModules() {
+        return modules.stream()
+                .filter(Module::isEnabled)
+                .collect(java.util.stream.Collectors.toList());
+    }
+
+    public static void disableAll() {
+        modules.forEach(module -> module.setEnabled(false));
+    }
+
+    public static void onTick() {
+        modules.stream()
+                .filter(Module::isEnabled)
+                .forEach(Module::onTick);
+    }
+
+    public static void onRender() {
+        modules.stream()
+                .filter(Module::isEnabled)
+                .forEach(module -> {
+                    // Call render method if module has one
+                });
     }
 }

@@ -33,7 +33,8 @@ public class AquaClientClient implements ClientModInitializer {
             }
             // Replace multiplayer screen with Aqua style
             else if (screen instanceof MultiplayerScreen && !(screen instanceof AquaMultiplayerScreen)) {
-                client.setScreen(new AquaMultiplayerScreen(((MultiplayerScreen) screen).parent));
+                // Use reflection to get the parent field if needed, or create a new screen
+                client.setScreen(new AquaMultiplayerScreen(screen));
             }
         });
 
