@@ -85,7 +85,7 @@ public class AquaMainMenu extends Screen {
                 buttonWidth,
                 buttonHeight,
                 GRADIENT_SECONDARY,
-                () -> client.setScreen(new MultiplayerScreen(this))
+                () -> client.setScreen(new AquaMultiplayerScreen(this))
         ));
 
         aquaButtons.add(new AquaButton(
@@ -235,7 +235,7 @@ public class AquaMainMenu extends Screen {
                 rainbowColor.getRGB(), false);
 
         // Subtitle with typewriter effect
-        String subtitle = "MODERN EDITION";
+        String subtitle = "THE BEST CHEAT";
         int subtitleWidth = client.textRenderer.getWidth(subtitle);
 
         // Animated dots
@@ -250,7 +250,7 @@ public class AquaMainMenu extends Screen {
 
     private void renderInfo(DrawContext context) {
         // Version info (bottom left)
-        String version = "AquaClient v2.1 Modern";
+        String version = "AquaClient v2.1";
         context.drawText(client.textRenderer, version, 15, this.height - 35,
                 TEXT_SECONDARY.getRGB(), false);
 

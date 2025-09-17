@@ -9,9 +9,12 @@ import net.minecraft.text.Text;
 import net.minecraft.client.session.Session;
 
 import java.awt.Color;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.Properties;
 
 public class AquaAccountManager extends Screen {
     private final Screen parent;
@@ -39,29 +42,28 @@ public class AquaAccountManager extends Screen {
     private static final Color TEXT_SECONDARY = new Color(170, 170, 180, 255);
     private static final Color TEXT_DISABLED = new Color(100, 100, 100, 255);
 
-    // Mock account storage (in real implementation, save to file)
+    // Account storage
     private final List<AccountInfo> accounts = new ArrayList<>();
 
     public AquaAccountManager(Screen parent) {
         super(Text.literal("Account Manager"));
         this.parent = parent;
-
-        // Add some demo accounts
-        accounts.add(new AccountInfo("Player123", AccountType.CRACKED, true));
-        accounts.add(new AccountInfo("TestUser", AccountType.CRACKED, false));
-        accounts.add(new AccountInfo("PremiumUser", AccountType.PREMIUM, false));
+        loadAccounts();
     }
 
     @Override
     protected void init() {
         super.init();
 
-        // Username input field
+        // Username input field with better positioning and styling
+        int fieldWidth = 200;
+        int fieldHeight = 20;
         usernameField = new TextFieldWidget(mc.textRenderer,
-                this.width / 2 - 100, this.height - 100, 200, 20,
+                this.width / 2 - fieldWidth / 2, this.height - 120, fieldWidth, fieldHeight,
                 Text.literal("Username"));
         usernameField.setPlaceholder(Text.literal("Enter username..."));
         usernameField.setMaxLength(16);
+        usernameField.setDrawsBackground(false); // We'll draw custom background
         this.addSelectableChild(usernameField);
         this.setInitialFocus(usernameField);
     }
@@ -181,7 +183,7 @@ public class AquaAccountManager extends Screen {
         int itemHeight = 45;
         int startY = listY + 35;
 
-        for (int i = 0; i < accounts.size(); i++) {
+        for (int i = 0; i < accounts.size() && i < 20; i++) {
             AccountInfo account = accounts.get(i);
             int itemY = startY + i * itemHeight;
 
@@ -272,12 +274,26 @@ public class AquaAccountManager extends Screen {
         context.drawText(mc.textRenderer, "Username:",
                 panelX + 35, sectionY + 30, TEXT_SECONDARY.getRGB(), false);
 
-        // Username field (rendered by Minecraft)
-        usernameField.setX(panelX + 110);
-        usernameField.setY(sectionY + 25);
+        // Custom username field background
+        int fieldX = panelX + 110;
+        int fieldY = sectionY + 25;
+        int fieldWidth = 200;
+        int fieldHeight = 20;
+
+        // Draw field background
+        Color fieldBg = usernameField.isFocused() ? new Color(45, 45, 60, 255) : BG_HOVER;
+        drawRoundedRect(context, fieldX - 2, fieldY - 2, fieldWidth + 4, fieldHeight + 4, 4, fieldBg);
+
+        // Draw field border
+        Color borderColor = usernameField.isFocused() ? ACCENT_PRIMARY : new Color(100, 100, 100, 100);
+        drawRoundedBorder(context, fieldX - 2, fieldY - 2, fieldWidth + 4, fieldHeight + 4, 4, borderColor);
+
+        // Update field position
+        usernameField.setX(fieldX);
+        usernameField.setY(fieldY);
 
         // Account type buttons
-        boolean isCrackedSelected = !isAddingAccount || true; // Default to cracked
+        boolean isCrackedSelected = true; // Default to cracked
 
         // Cracked button
         Color crackedBg = isCrackedSelected ? new Color(138, 43, 226, 150) : BG_HOVER;
@@ -292,7 +308,8 @@ public class AquaAccountManager extends Screen {
                 panelX + 428, sectionY + 30, TEXT_DISABLED.getRGB(), false);
 
         // Add button
-        boolean canAdd = usernameField.getText() != null && !usernameField.getText().trim().isEmpty();
+        String usernameText = usernameField.getText();
+        boolean canAdd = usernameText != null && !usernameText.trim().isEmpty();
         Color addButtonColor = canAdd ? ACCENT_SUCCESS : new Color(100, 100, 100, 100);
 
         drawRoundedRect(context, panelX + 520, sectionY + 25, 60, 20, 4, addButtonColor);
@@ -317,17 +334,6 @@ public class AquaAccountManager extends Screen {
                 new Color(138, 43, 226, 150));
         context.drawText(mc.textRenderer, "🔄 Refresh",
                 panelX + 130, buttonY + 10, TEXT_PRIMARY.getRGB(), false);
-
-        // Import/Export buttons (placeholder)
-        drawRoundedRect(context, panelX + panelWidth - 180, buttonY, 80, 30, 6,
-                new Color(251, 191, 36, 150));
-        context.drawText(mc.textRenderer, "Import",
-                panelX + panelWidth - 160, buttonY + 10, TEXT_PRIMARY.getRGB(), false);
-
-        drawRoundedRect(context, panelX + panelWidth - 90, buttonY, 80, 30, 6,
-                new Color(251, 191, 36, 150));
-        context.drawText(mc.textRenderer, "Export",
-                panelX + panelWidth - 70, buttonY + 10, TEXT_PRIMARY.getRGB(), false);
     }
 
     @Override
@@ -344,6 +350,13 @@ public class AquaAccountManager extends Screen {
             if (mouseX >= panelX + 20 && mouseX <= panelX + 100 &&
                     mouseY >= buttonY && mouseY <= buttonY + 30) {
                 mc.setScreen(parent);
+                return true;
+            }
+
+            // Refresh button
+            if (mouseX >= panelX + 120 && mouseX <= panelX + 200 &&
+                    mouseY >= buttonY && mouseY <= buttonY + 30) {
+                loadAccounts();
                 return true;
             }
 
@@ -405,12 +418,12 @@ public class AquaAccountManager extends Screen {
             username = username.trim();
 
             // Check if account already exists
-            final String finalUsername = username; // Make effectively final for lambda
+            final String finalUsername = username;
             boolean exists = accounts.stream().anyMatch(acc -> acc.username.equalsIgnoreCase(finalUsername));
             if (!exists) {
                 accounts.add(new AccountInfo(finalUsername, AccountType.CRACKED, false));
                 usernameField.setText("");
-                // In real implementation, save to file here
+                saveAccounts();
             }
         }
     }
@@ -419,19 +432,27 @@ public class AquaAccountManager extends Screen {
         if (index >= 0 && index < accounts.size()) {
             AccountInfo account = accounts.get(index);
 
-            // Switch to the selected account (simplified - in real implementation use proper session switching)
             try {
-                // Fixed Session constructor with UUID
-                UUID accountUUID = new UUID(0, account.username.hashCode()); // Generate UUID from username
+                // Generate UUID from username hash for consistency
+                UUID accountUUID = UUID.nameUUIDFromBytes(("OfflinePlayer:" + account.username).getBytes(StandardCharsets.UTF_8));
+
+                // Create new session
                 Session newSession = new Session(account.username, accountUUID, "",
                         java.util.Optional.empty(), java.util.Optional.empty(), Session.AccountType.LEGACY);
 
-                // Update current account status
-                final String finalUsername = account.username; // Make effectively final
-                accounts.forEach(acc -> acc.isOnline = acc.username.equals(finalUsername));
+                // Use reflection to change the session
+                try {
+                    java.lang.reflect.Field sessionField = MinecraftClient.class.getDeclaredField("session");
+                    sessionField.setAccessible(true);
+                    sessionField.set(mc, newSession);
+                } catch (Exception e) {
+                    System.err.println("Failed to change session via reflection: " + e.getMessage());
+                }
 
-                // In real implementation, you'd need to properly change the session
-                // This is just for demonstration
+                // Update account status
+                accounts.forEach(acc -> acc.isOnline = acc.username.equals(account.username));
+                saveAccounts();
+
                 System.out.println("Switched to account: " + account.username);
 
             } catch (Exception e) {
@@ -448,8 +469,73 @@ public class AquaAccountManager extends Screen {
                 if (selectedAccount == index) {
                     selectedAccount = -1;
                 }
-                // In real implementation, save to file here
+                saveAccounts();
             }
+        }
+    }
+
+    private void saveAccounts() {
+        try {
+            File configDir = new File(mc.runDirectory, "config");
+            if (!configDir.exists()) {
+                configDir.mkdirs();
+            }
+
+            File configFile = new File(configDir, "aquaclient_accounts.properties");
+            Properties props = new Properties();
+
+            // Save account count
+            props.setProperty("account_count", String.valueOf(accounts.size()));
+
+            // Save each account
+            for (int i = 0; i < accounts.size(); i++) {
+                AccountInfo account = accounts.get(i);
+                props.setProperty("account_" + i + "_username", account.username);
+                props.setProperty("account_" + i + "_type", account.type.name());
+                props.setProperty("account_" + i + "_online", String.valueOf(account.isOnline));
+            }
+
+            try (FileOutputStream fos = new FileOutputStream(configFile)) {
+                props.store(fos, "AquaClient Accounts Config");
+            }
+
+        } catch (IOException e) {
+            System.err.println("Failed to save accounts: " + e.getMessage());
+        }
+    }
+
+    private void loadAccounts() {
+        accounts.clear();
+
+        // Add current session account if not exists
+        String currentUsername = mc.getSession().getUsername();
+        accounts.add(new AccountInfo(currentUsername, AccountType.CRACKED, true));
+
+        try {
+            File configFile = new File(mc.runDirectory, "config/aquaclient_accounts.properties");
+            if (configFile.exists()) {
+                Properties props = new Properties();
+                try (FileInputStream fis = new FileInputStream(configFile)) {
+                    props.load(fis);
+                }
+
+                String countStr = props.getProperty("account_count", "0");
+                int accountCount = Integer.parseInt(countStr);
+
+                for (int i = 0; i < accountCount; i++) {
+                    String username = props.getProperty("account_" + i + "_username");
+                    String typeStr = props.getProperty("account_" + i + "_type", "CRACKED");
+                    String onlineStr = props.getProperty("account_" + i + "_online", "false");
+
+                    if (username != null && !username.equals(currentUsername)) {
+                        AccountType type = AccountType.valueOf(typeStr);
+                        boolean isOnline = Boolean.parseBoolean(onlineStr);
+                        accounts.add(new AccountInfo(username, type, isOnline));
+                    }
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("Failed to load accounts: " + e.getMessage());
         }
     }
 
