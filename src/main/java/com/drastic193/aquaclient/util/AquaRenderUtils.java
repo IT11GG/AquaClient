@@ -2,470 +2,380 @@
 package com.drastic193.aquaclient.util;
 
 import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.font.TextRenderer;
+import com.mojang.blaze3d.systems.RenderSystem;
+import net.minecraft.client.render.*;
+import net.minecraft.util.math.MathHelper;
+import org.joml.Matrix4f;
+
 import java.awt.Color;
 
 public class AquaRenderUtils {
 
     /**
-     * Draws a rounded rectangle with proper corner radius
+     * Draw text with rainbow effect
+     */
+    public static void drawRainbowText(DrawContext context, TextRenderer textRenderer, String text,
+                                       int x, int y, float time, float speed) {
+        float hueStep = 0.1f / text.length();
+        for (int i = 0; i < text.length(); i++) {
+            float hue = (time * speed + i * hueStep) % 1.0f;
+            Color color = Color.getHSBColor(hue, 0.8f, 1.0f);
+            context.drawText(textRenderer, String.valueOf(text.charAt(i)),
+                    x + textRenderer.getWidth(text.substring(0, i)), y,
+                    color.getRGB(), false);
+        }
+    }
+
+    /**
+     * Draw rounded rectangle with gradient
+     */
+    public static void drawRoundedGradientRect(DrawContext context, int x, int y, int width, int height,
+                                               int radius, Color startColor, Color endColor) {
+        // Draw main rectangle
+        drawGradientRect(context, x + radius, y, x + width - radius, y + height, startColor, endColor);
+
+        // Draw side rectangles
+        drawGradientRect(context, x, y + radius, x + radius, y + height - radius, startColor, endColor);
+        drawGradientRect(context, x + width - radius, y + radius, x + width, y + height - radius, startColor, endColor);
+
+        // Draw corners
+        drawRoundedCorners(context, x, y, width, height, radius, startColor, endColor);
+    }
+
+    /**
+     * Draw gradient rectangle
+     */
+    public static void drawGradientRect(DrawContext context, int x1, int y1, int x2, int y2,
+                                        Color startColor, Color endColor) {
+        RenderSystem.enableBlend();
+        RenderSystem.defaultBlendFunc();
+        RenderSystem.setShader(GameRenderer::getPositionColorProgram);
+
+        BufferBuilder buffer = Tessellator.getInstance().begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR);
+        Matrix4f matrix = context.getMatrices().peek().getPositionMatrix();
+
+        // Top-left
+        buffer.vertex(matrix, x1, y1, 0)
+                .color(startColor.getRed(), startColor.getGreen(), startColor.getBlue(), startColor.getAlpha());
+
+        // Top-right
+        buffer.vertex(matrix, x2, y1, 0)
+                .color(startColor.getRed(), startColor.getGreen(), startColor.getBlue(), startColor.getAlpha());
+
+        // Bottom-right
+        buffer.vertex(matrix, x2, y2, 0)
+                .color(endColor.getRed(), endColor.getGreen(), endColor.getBlue(), endColor.getAlpha());
+
+        // Bottom-left
+        buffer.vertex(matrix, x1, y2, 0)
+                .color(endColor.getRed(), endColor.getGreen(), endColor.getBlue(), endColor.getAlpha());
+
+        BufferRenderer.drawWithGlobalProgram(buffer.end());
+        RenderSystem.disableBlend();
+    }
+
+    /**
+     * Draw rounded rectangle
      */
     public static void drawRoundedRect(DrawContext context, int x, int y, int width, int height,
                                        int radius, Color color) {
-        if (radius <= 0) {
-            context.fill(x, y, x + width, y + height, color.getRGB());
-            return;
-        }
-
-        // Main rectangle
+        // Main rectangles
         context.fill(x + radius, y, x + width - radius, y + height, color.getRGB());
-        context.fill(x, y + radius, x + radius, y + height - radius, color.getRGB());
-        context.fill(x + width - radius, y + radius, x + width, y + height - radius, color.getRGB());
+        context.fill(x, y + radius, x + width, y + height - radius, color.getRGB());
 
-        // Corners (approximated with smaller rectangles for smooth appearance)
-        drawCorner(context, x, y, radius, color, Corner.TOP_LEFT);
-        drawCorner(context, x + width - radius, y, radius, color, Corner.TOP_RIGHT);
-        drawCorner(context, x, y + height - radius, radius, color, Corner.BOTTOM_LEFT);
-        drawCorner(context, x + width - radius, y + height - radius, radius, color, Corner.BOTTOM_RIGHT);
+        // Corners
+        drawCircleQuarter(context, x + radius, y + radius, radius, color, 0);
+        drawCircleQuarter(context, x + width - radius, y + radius, radius, color, 1);
+        drawCircleQuarter(context, x + radius, y + height - radius, radius, color, 2);
+        drawCircleQuarter(context, x + width - radius, y + height - radius, radius, color, 3);
     }
 
     /**
-     * Draws a rounded border
+     * Draw circle quarter for rounded corners
      */
-    public static void drawRoundedBorder(DrawContext context, int x, int y, int width, int height,
-                                         int radius, int borderWidth, Color color) {
-        for (int i = 0; i < borderWidth; i++) {
-            drawRoundedRect(context, x - i, y - i, width + i * 2, height + i * 2, radius + i,
-                    new Color(color.getRed(), color.getGreen(), color.getBlue(),
-                            Math.max(10, color.getAlpha() / (i + 1))));
-        }
-    }
-
-    /**
-     * Draws a gradient rectangle
-     */
-    public static void drawGradient(DrawContext context, int x, int y, int width, int height,
-                                    Color startColor, Color endColor, GradientDirection direction) {
-        switch (direction) {
-            case VERTICAL -> drawVerticalGradient(context, x, y, width, height, startColor, endColor);
-            case HORIZONTAL -> drawHorizontalGradient(context, x, y, width, height, startColor, endColor);
-            case DIAGONAL_DOWN -> drawDiagonalGradient(context, x, y, width, height, startColor, endColor, true);
-            case DIAGONAL_UP -> drawDiagonalGradient(context, x, y, width, height, startColor, endColor, false);
-        }
-    }
-
-    /**
-     * Draws a rounded gradient rectangle
-     */
-    public static void drawRoundedGradient(DrawContext context, int x, int y, int width, int height,
-                                           int radius, Color startColor, Color endColor,
-                                           GradientDirection direction) {
-        // Create gradient mask
-        switch (direction) {
-            case VERTICAL -> {
-                for (int i = 0; i < height; i++) {
-                    float progress = (float) i / height;
-                    Color currentColor = interpolateColor(startColor, endColor, progress);
-                    drawRoundedRect(context, x, y + i, width, 1, i < radius ? radius - i : 0, currentColor);
-                }
-            }
-            case HORIZONTAL -> {
-                for (int i = 0; i < width; i++) {
-                    float progress = (float) i / width;
-                    Color currentColor = interpolateColor(startColor, endColor, progress);
-                    drawRoundedRect(context, x + i, y, 1, height, i < radius ? radius - i : 0, currentColor);
+    private static void drawCircleQuarter(DrawContext context, int centerX, int centerY, int radius,
+                                          Color color, int quarter) {
+        for (int x = 0; x <= radius; x++) {
+            for (int y = 0; y <= radius; y++) {
+                if (x * x + y * y <= radius * radius) {
+                    int px = centerX, py = centerY;
+                    switch (quarter) {
+                        case 0 -> { px -= x; py -= y; } // Top-left
+                        case 1 -> { px += x; py -= y; } // Top-right
+                        case 2 -> { px -= x; py += y; } // Bottom-left
+                        case 3 -> { px += x; py += y; } // Bottom-right
+                    }
+                    context.fill(px, py, px + 1, py + 1, color.getRGB());
                 }
             }
         }
     }
 
     /**
-     * Draws a glow effect around a rectangle
+     * Draw rounded corners with gradient
+     */
+    private static void drawRoundedCorners(DrawContext context, int x, int y, int width, int height,
+                                           int radius, Color startColor, Color endColor) {
+        for (int cx = 0; cx < radius; cx++) {
+            for (int cy = 0; cy < radius; cy++) {
+                if (cx * cx + cy * cy <= radius * radius) {
+                    float ratio = (float) cy / height;
+                    Color color = blendColors(startColor, endColor, ratio);
+
+                    // Top-left
+                    context.fill(x + cx, y + cy, x + cx + 1, y + cy + 1, color.getRGB());
+                    // Top-right
+                    context.fill(x + width - radius + cx, y + cy,
+                            x + width - radius + cx + 1, y + cy + 1, color.getRGB());
+
+                    ratio = (float) (height - radius + cy) / height;
+                    color = blendColors(startColor, endColor, ratio);
+
+                    // Bottom-left
+                    context.fill(x + cx, y + height - radius + cy,
+                            x + cx + 1, y + height - radius + cy + 1, color.getRGB());
+                    // Bottom-right
+                    context.fill(x + width - radius + cx, y + height - radius + cy,
+                            x + width - radius + cx + 1, y + height - radius + cy + 1, color.getRGB());
+                }
+            }
+        }
+    }
+
+    /**
+     * Draw glow effect around rectangle
      */
     public static void drawGlow(DrawContext context, int x, int y, int width, int height,
-                                int radius, Color glowColor, int glowSize, float intensity) {
-        for (int i = glowSize; i > 0; i--) {
-            float alpha = (intensity * (glowSize - i + 1) / glowSize) * (glowColor.getAlpha() / 255.0f);
-            int glowAlpha = Math.max(0, Math.min(255, (int) (alpha * 255)));
-
-            Color currentGlowColor = new Color(glowColor.getRed(), glowColor.getGreen(),
-                    glowColor.getBlue(), glowAlpha);
+                                int radius, Color color, int layers, float intensity) {
+        for (int i = layers; i > 0; i--) {
+            float alpha = intensity * (1.0f - (float) i / layers);
+            Color glowColor = new Color(
+                    color.getRed() / 255f,
+                    color.getGreen() / 255f,
+                    color.getBlue() / 255f,
+                    alpha
+            );
 
             drawRoundedRect(context, x - i, y - i, width + i * 2, height + i * 2,
-                    radius + i, currentGlowColor);
+                    radius + i, glowColor);
         }
     }
 
     /**
-     * Draws animated rainbow border
-     */
-    public static void drawRainbowBorder(DrawContext context, int x, int y, int width, int height,
-                                         int radius, int borderWidth, float time, float speed) {
-        int segments = Math.max(20, width / 10);
-
-        for (int i = 0; i < segments; i++) {
-            float hue = ((float) i / segments + time * speed) % 1.0f;
-            Color rainbowColor = Color.getHSBColor(hue, 0.8f, 1.0f);
-
-            int segmentWidth = width / segments;
-            int segmentX = x + i * segmentWidth;
-
-            // Top border
-            context.fill(segmentX, y, segmentX + segmentWidth, y + borderWidth,
-                    rainbowColor.getRGB());
-
-            // Bottom border
-            context.fill(segmentX, y + height - borderWidth, segmentX + segmentWidth, y + height,
-                    rainbowColor.getRGB());
-        }
-
-        // Side borders
-        for (int i = 0; i < height / 2; i++) {
-            float hue1 = (time * speed + (float) i / height) % 1.0f;
-            float hue2 = (time * speed + 0.5f + (float) i / height) % 1.0f;
-
-            Color leftColor = Color.getHSBColor(hue1, 0.8f, 1.0f);
-            Color rightColor = Color.getHSBColor(hue2, 0.8f, 1.0f);
-
-            // Left border
-            context.fill(x, y + i * 2, x + borderWidth, y + i * 2 + 2, leftColor.getRGB());
-            // Right border
-            context.fill(x + width - borderWidth, y + i * 2, x + width, y + i * 2 + 2,
-                    rightColor.getRGB());
-        }
-    }
-
-    /**
-     * Draws a pulsating effect
-     */
-    public static void drawPulse(DrawContext context, int x, int y, int width, int height,
-                                 int radius, Color color, float time, float speed, float intensity) {
-        float pulse = (float) Math.sin(time * speed) * 0.5f + 0.5f;
-        int pulseAlpha = (int) (intensity * pulse * 255);
-
-        Color pulseColor = new Color(color.getRed(), color.getGreen(), color.getBlue(), pulseAlpha);
-
-        int pulseSize = (int) (pulse * 5);
-        drawRoundedRect(context, x - pulseSize, y - pulseSize, width + pulseSize * 2,
-                height + pulseSize * 2, radius + pulseSize, pulseColor);
-    }
-
-    /**
-     * Draws flowing particle effect
-     */
-    public static void drawFlowingParticles(DrawContext context, int x, int y, int width, int height,
-                                            Color particleColor, float time, int particleCount) {
-        for (int i = 0; i < particleCount; i++) {
-            float offsetX = (float) Math.sin(time * 2 + i * 0.5f) * (width * 0.3f);
-            float offsetY = (float) Math.cos(time * 1.5f + i * 0.3f) * (height * 0.3f);
-
-            float particleX = x + width * 0.5f + offsetX;
-            float particleY = y + height * 0.5f + offsetY;
-
-            float alpha = (float) Math.abs(Math.sin(time * 3 + i)) * 0.6f + 0.2f;
-            int alphaInt = Math.max(0, Math.min(255, (int) (alpha * 255)));
-
-            Color finalColor = new Color(particleColor.getRed(), particleColor.getGreen(),
-                    particleColor.getBlue(), alphaInt);
-
-            int size = 2 + (int) (alpha * 3);
-            context.fill((int) particleX, (int) particleY, (int) particleX + size,
-                    (int) particleY + size, finalColor.getRGB());
-        }
-    }
-
-    /**
-     * Draws a glitch effect
-     */
-    public static void drawGlitchEffect(DrawContext context, int x, int y, int width, int height,
-                                        Color baseColor, float time, float intensity) {
-        // Random glitch lines
-        for (int i = 0; i < 8; i++) {
-            if (Math.sin(time * 10 + i) > 0.3f) {
-                int glitchY = y + (int) (Math.random() * height);
-                int glitchHeight = 1 + (int) (Math.random() * 3);
-                int glitchOffset = (int) ((Math.random() - 0.5f) * intensity * 5);
-
-                Color glitchColor = i % 2 == 0 ?
-                        new Color(255, 0, 100, 150) : new Color(0, 255, 255, 150);
-
-                context.fill(x + glitchOffset, glitchY, x + width + glitchOffset,
-                        glitchY + glitchHeight, glitchColor.getRGB());
-            }
-        }
-    }
-
-    /**
-     * Draws a holographic effect
+     * Draw holographic effect
      */
     public static void drawHolographic(DrawContext context, int x, int y, int width, int height, float time) {
-        // Holographic shimmer lines
-        for (int i = 0; i < width + height; i += 8) {
-            float shimmer = (float) Math.sin(time * 4 + i * 0.1f) * 0.3f + 0.3f;
-            int alpha = (int) (shimmer * 80);
+        for (int i = 0; i < height; i += 2) {
+            float wave = (float) Math.sin((i + time * 50) * 0.1f) * 0.5f + 0.5f;
+            int alpha = (int) (wave * 100);
 
-            Color shimmerColor = new Color(100, 200, 255, alpha);
+            Color color1 = new Color(138, 43, 226, alpha);
+            Color color2 = new Color(0, 255, 255, alpha / 2);
 
-            // Diagonal shimmer line
-            int startX = x + i - height;
-            int startY = y;
-            int endX = x + i;
-            int endY = y + height;
+            context.fill(x, y + i, x + width, y + i + 1, color1.getRGB());
+            if (i + 1 < height) {
+                context.fill(x, y + i + 1, x + width, y + i + 2, color2.getRGB());
+            }
+        }
+    }
 
-            if (startX >= x && startX <= x + width) {
-                for (int j = 0; j < Math.min(height, width - (startX - x)); j++) {
-                    context.fill(startX + j, startY + j, startX + j + 2, startY + j + 1,
-                            shimmerColor.getRGB());
+    /**
+     * Draw animated border
+     */
+    public static void drawAnimatedBorder(DrawContext context, int x, int y, int width, int height,
+                                          int thickness, Color color, float time) {
+        float dashLength = 20;
+        float gapLength = 10;
+        float totalLength = dashLength + gapLength;
+        float offset = (time * 50) % totalLength;
+
+        // Top border
+        for (float i = -offset; i < width; i += totalLength) {
+            int start = Math.max(x, x + (int) i);
+            int end = Math.min(x + width, x + (int) (i + dashLength));
+            if (start < end) {
+                context.fill(start, y, end, y + thickness, color.getRGB());
+            }
+        }
+
+        // Bottom border
+        for (float i = -offset; i < width; i += totalLength) {
+            int start = Math.max(x, x + (int) i);
+            int end = Math.min(x + width, x + (int) (i + dashLength));
+            if (start < end) {
+                context.fill(start, y + height - thickness, end, y + height, color.getRGB());
+            }
+        }
+
+        // Left border
+        for (float i = -offset; i < height; i += totalLength) {
+            int start = Math.max(y, y + (int) i);
+            int end = Math.min(y + height, y + (int) (i + dashLength));
+            if (start < end) {
+                context.fill(x, start, x + thickness, end, color.getRGB());
+            }
+        }
+
+        // Right border
+        for (float i = -offset; i < height; i += totalLength) {
+            int start = Math.max(y, y + (int) i);
+            int end = Math.min(y + height, y + (int) (i + dashLength));
+            if (start < end) {
+                context.fill(x + width - thickness, start, x + width, end, color.getRGB());
+            }
+        }
+    }
+
+    /**
+     * Draw sliding text
+     */
+    public static void drawSlidingText(DrawContext context, TextRenderer textRenderer, String text,
+                                       int x, int y, int maxWidth, float time, Color color) {
+        int textWidth = textRenderer.getWidth(text);
+        if (textWidth <= maxWidth) {
+            context.drawText(textRenderer, text, x, y, color.getRGB(), false);
+        } else {
+            int offset = (int) ((time * 50) % (textWidth + maxWidth)) - maxWidth;
+
+            RenderSystem.enableScissor(x, y - 2, x + maxWidth, y + textRenderer.fontHeight + 2);
+            context.drawText(textRenderer, text, x - offset, y, color.getRGB(), false);
+            RenderSystem.disableScissor();
+        }
+    }
+
+    /**
+     * Draw circle
+     */
+    public static void drawCircle(DrawContext context, int centerX, int centerY, int radius, Color color) {
+        for (int x = -radius; x <= radius; x++) {
+            for (int y = -radius; y <= radius; y++) {
+                if (x * x + y * y <= radius * radius) {
+                    context.fill(centerX + x, centerY + y, centerX + x + 1, centerY + y + 1, color.getRGB());
                 }
             }
         }
     }
 
-    // Helper methods
-    private static void drawCorner(DrawContext context, int x, int y, int radius, Color color, Corner corner) {
-        // Simplified corner drawing using filled rectangles
-        for (int i = 0; i <= radius; i++) {
-            for (int j = 0; j <= radius; j++) {
-                double distance = Math.sqrt(i * i + j * j);
-                if (distance <= radius) {
-                    int pixelX = x, pixelY = y;
+    /**
+     * Draw progress bar
+     */
+    public static void drawProgressBar(DrawContext context, int x, int y, int width, int height,
+                                       float progress, Color bgColor, Color fillColor, Color borderColor) {
+        // Background
+        drawRoundedRect(context, x, y, width, height, height / 2, bgColor);
 
-                    switch (corner) {
-                        case TOP_LEFT -> {
-                            pixelX = x + radius - i;
-                            pixelY = y + radius - j;
-                        }
-                        case TOP_RIGHT -> {
-                            pixelX = x + i;
-                            pixelY = y + radius - j;
-                        }
-                        case BOTTOM_LEFT -> {
-                            pixelX = x + radius - i;
-                            pixelY = y + j;
-                        }
-                        case BOTTOM_RIGHT -> {
-                            pixelX = x + i;
-                            pixelY = y + j;
-                        }
+        // Fill
+        if (progress > 0) {
+            int fillWidth = (int) (width * MathHelper.clamp(progress, 0, 1));
+            drawRoundedRect(context, x, y, fillWidth, height, height / 2, fillColor);
+        }
+
+        // Border
+        drawRoundedBorder(context, x, y, width, height, height / 2, borderColor, 1);
+    }
+
+    /**
+     * Draw rounded border
+     */
+    public static void drawRoundedBorder(DrawContext context, int x, int y, int width, int height,
+                                         int radius, Color color, int thickness) {
+        for (int i = 0; i < thickness; i++) {
+            // Top and bottom
+            context.fill(x + radius, y + i, x + width - radius, y + i + 1, color.getRGB());
+            context.fill(x + radius, y + height - i - 1, x + width - radius, y + height - i, color.getRGB());
+
+            // Left and right
+            context.fill(x + i, y + radius, x + i + 1, y + height - radius, color.getRGB());
+            context.fill(x + width - i - 1, y + radius, x + width - i, y + height - radius, color.getRGB());
+
+            // Corners
+            drawCircleQuarterBorder(context, x + radius, y + radius, radius, color, i, 0);
+            drawCircleQuarterBorder(context, x + width - radius, y + radius, radius, color, i, 1);
+            drawCircleQuarterBorder(context, x + radius, y + height - radius, radius, color, i, 2);
+            drawCircleQuarterBorder(context, x + width - radius, y + height - radius, radius, color, i, 3);
+        }
+    }
+
+    /**
+     * Draw circle quarter border for rounded corners
+     */
+    private static void drawCircleQuarterBorder(DrawContext context, int centerX, int centerY, int radius,
+                                                Color color, int offset, int quarter) {
+        int r = radius - offset;
+        int r2 = (radius - offset - 1);
+
+        for (int x = 0; x <= r; x++) {
+            for (int y = 0; y <= r; y++) {
+                if (x * x + y * y <= r * r && x * x + y * y > r2 * r2) {
+                    int px = centerX, py = centerY;
+                    switch (quarter) {
+                        case 0 -> { px -= x; py -= y; }
+                        case 1 -> { px += x; py -= y; }
+                        case 2 -> { px -= x; py += y; }
+                        case 3 -> { px += x; py += y; }
                     }
-
-                    context.fill(pixelX, pixelY, pixelX + 1, pixelY + 1, color.getRGB());
+                    context.fill(px, py, px + 1, py + 1, color.getRGB());
                 }
             }
         }
     }
 
-    private static void drawVerticalGradient(DrawContext context, int x, int y, int width, int height,
-                                             Color startColor, Color endColor) {
-        for (int i = 0; i < height; i++) {
-            float progress = (float) i / height;
-            Color currentColor = interpolateColor(startColor, endColor, progress);
-            context.fill(x, y + i, x + width, y + i + 1, currentColor.getRGB());
-        }
-    }
-
-    private static void drawHorizontalGradient(DrawContext context, int x, int y, int width, int height,
-                                               Color startColor, Color endColor) {
-        for (int i = 0; i < width; i++) {
-            float progress = (float) i / width;
-            Color currentColor = interpolateColor(startColor, endColor, progress);
-            context.fill(x + i, y, x + i + 1, y + height, currentColor.getRGB());
-        }
-    }
-
-    private static void drawDiagonalGradient(DrawContext context, int x, int y, int width, int height,
-                                             Color startColor, Color endColor, boolean downward) {
-        for (int i = 0; i < width; i++) {
-            for (int j = 0; j < height; j++) {
-                float progress = downward ?
-                        (float) (i + j) / (width + height) :
-                        (float) (i + height - j) / (width + height);
-
-                progress = Math.max(0, Math.min(1, progress));
-                Color currentColor = interpolateColor(startColor, endColor, progress);
-                context.fill(x + i, y + j, x + i + 1, y + j + 1, currentColor.getRGB());
-            }
-        }
-    }
-
-    private static Color interpolateColor(Color start, Color end, float progress) {
-        progress = Math.max(0, Math.min(1, progress));
-
-        int r = (int) (start.getRed() + (end.getRed() - start.getRed()) * progress);
-        int g = (int) (start.getGreen() + (end.getGreen() - start.getGreen()) * progress);
-        int b = (int) (start.getBlue() + (end.getBlue() - start.getBlue()) * progress);
-        int a = (int) (start.getAlpha() + (end.getAlpha() - start.getAlpha()) * progress);
-
+    /**
+     * Blend two colors
+     */
+    private static Color blendColors(Color c1, Color c2, float ratio) {
+        ratio = MathHelper.clamp(ratio, 0, 1);
         return new Color(
-                Math.max(0, Math.min(255, r)),
-                Math.max(0, Math.min(255, g)),
-                Math.max(0, Math.min(255, b)),
-                Math.max(0, Math.min(255, a))
+                (int) (c1.getRed() * (1 - ratio) + c2.getRed() * ratio),
+                (int) (c1.getGreen() * (1 - ratio) + c2.getGreen() * ratio),
+                (int) (c1.getBlue() * (1 - ratio) + c2.getBlue() * ratio),
+                (int) (c1.getAlpha() * (1 - ratio) + c2.getAlpha() * ratio)
         );
     }
 
-    // Enums for configuration
-    public enum Corner {
-        TOP_LEFT, TOP_RIGHT, BOTTOM_LEFT, BOTTOM_RIGHT
-    }
-
-    public enum GradientDirection {
-        VERTICAL, HORIZONTAL, DIAGONAL_DOWN, DIAGONAL_UP
-    }
-
     /**
-     * Advanced text rendering with effects
+     * Draw wave pattern
      */
-    public static void drawTextWithShadow(DrawContext context, net.minecraft.client.font.TextRenderer textRenderer,
-                                          String text, int x, int y, Color textColor, Color shadowColor,
-                                          int shadowOffset) {
-        // Draw shadow
-        context.drawText(textRenderer, text, x + shadowOffset, y + shadowOffset,
-                shadowColor.getRGB(), false);
-        // Draw main text
-        context.drawText(textRenderer, text, x, y, textColor.getRGB(), false);
-    }
+    public static void drawWavePattern(DrawContext context, int x, int y, int width, int height,
+                                       Color color, float time, float frequency, float amplitude) {
+        for (int i = 0; i < width; i++) {
+            float wave = (float) Math.sin((i * frequency + time * 50) * 0.01f) * amplitude;
+            int waveY = (int) (y + height / 2 + wave);
 
-    /**
-     * Draw text with glow effect
-     */
-    public static void drawTextWithGlow(DrawContext context, net.minecraft.client.font.TextRenderer textRenderer,
-                                        String text, int x, int y, Color textColor, Color glowColor,
-                                        int glowRadius) {
-        // Draw glow layers
-        for (int i = glowRadius; i > 0; i--) {
-            int alpha = Math.max(10, glowColor.getAlpha() / i);
-            Color layerColor = new Color(glowColor.getRed(), glowColor.getGreen(),
-                    glowColor.getBlue(), alpha);
-
-            // Draw glow in multiple directions
-            context.drawText(textRenderer, text, x - i, y, layerColor.getRGB(), false);
-            context.drawText(textRenderer, text, x + i, y, layerColor.getRGB(), false);
-            context.drawText(textRenderer, text, x, y - i, layerColor.getRGB(), false);
-            context.drawText(textRenderer, text, x, y + i, layerColor.getRGB(), false);
-
-            // Diagonal glow
-            context.drawText(textRenderer, text, x - i, y - i, layerColor.getRGB(), false);
-            context.drawText(textRenderer, text, x + i, y - i, layerColor.getRGB(), false);
-            context.drawText(textRenderer, text, x - i, y + i, layerColor.getRGB(), false);
-            context.drawText(textRenderer, text, x + i, y + i, layerColor.getRGB(), false);
-        }
-
-        // Draw main text
-        context.drawText(textRenderer, text, x, y, textColor.getRGB(), false);
-    }
-
-    /**
-     * Draw rainbow text
-     */
-    public static void drawRainbowText(DrawContext context, net.minecraft.client.font.TextRenderer textRenderer,
-                                       String text, int x, int y, float time, float speed) {
-        for (int i = 0; i < text.length(); i++) {
-            char c = text.charAt(i);
-            float hue = (time * speed + (float) i / text.length()) % 1.0f;
-            Color color = Color.getHSBColor(hue, 0.8f, 1.0f);
-
-            int charWidth = textRenderer.getWidth(String.valueOf(c));
-            context.drawText(textRenderer, String.valueOf(c), x, y, color.getRGB(), false);
-            x += charWidth;
+            // Draw vertical line with gradient
+            for (int j = Math.max(y, waveY); j < Math.min(y + height, waveY + 3); j++) {
+                float alpha = 1.0f - Math.abs(j - waveY) / 3.0f;
+                Color waveColor = new Color(
+                        color.getRed() / 255f,
+                        color.getGreen() / 255f,
+                        color.getBlue() / 255f,
+                        alpha * (color.getAlpha() / 255f)
+                );
+                context.fill(x + i, j, x + i + 1, j + 1, waveColor.getRGB());
+            }
         }
     }
 
     /**
-     * Draw animated wave text
+     * Draw notification
      */
-    public static void drawWaveText(DrawContext context, net.minecraft.client.font.TextRenderer textRenderer,
-                                    String text, int x, int y, Color color, float time, float amplitude, float frequency) {
-        for (int i = 0; i < text.length(); i++) {
-            char c = text.charAt(i);
-            float waveY = (float) Math.sin(time * frequency + i * 0.5f) * amplitude;
-
-            int charWidth = textRenderer.getWidth(String.valueOf(c));
-            context.drawText(textRenderer, String.valueOf(c), x, y + (int) waveY, color.getRGB(), false);
-            x += charWidth;
-        }
-    }
-
-    /**
-     * Creates a glowing button effect
-     */
-    public static void drawGlowingButton(DrawContext context, int x, int y, int width, int height,
-                                         Color baseColor, Color glowColor, boolean hovered, float time) {
-        if (hovered) {
-            float pulse = (float) Math.sin(time * 8) * 0.3f + 0.7f;
-            drawGlow(context, x, y, width, height, 8, glowColor, 6, pulse);
-        }
-
-        drawRoundedRect(context, x, y, width, height, 8, baseColor);
-
-        if (hovered) {
-            Color highlightColor = new Color(255, 255, 255, 30);
-            drawRoundedRect(context, x, y, width, height, 8, highlightColor);
-        }
-    }
-
-    /**
-     * Creates a modern progress bar
-     */
-    public static void drawProgressBar(DrawContext context, int x, int y, int width, int height,
-                                       float progress, Color backgroundColor, Color progressColor,
-                                       Color glowColor) {
-        progress = Math.max(0, Math.min(1, progress));
-
+    public static void drawNotification(DrawContext context, TextRenderer textRenderer,
+                                        String title, String message, int x, int y,
+                                        int width, int height, Color bgColor, Color accentColor) {
         // Background
-        drawRoundedRect(context, x, y, width, height, height / 2, backgroundColor);
+        drawRoundedRect(context, x, y, width, height, 8, bgColor);
 
-        // Progress
-        int progressWidth = (int) (width * progress);
-        if (progressWidth > 0) {
-            drawRoundedRect(context, x, y, progressWidth, height, height / 2, progressColor);
+        // Accent bar
+        context.fill(x, y, x + 3, y + height, accentColor.getRGB());
 
-            // Glow effect
-            drawGlow(context, x, y, progressWidth, height, height / 2, glowColor, 3, 0.5f);
-        }
-    }
+        // Title
+        context.drawText(textRenderer, title, x + 10, y + 5, accentColor.getRGB(), false);
 
-    /**
-     * Creates a floating panel effect
-     */
-    public static void drawFloatingPanel(DrawContext context, int x, int y, int width, int height,
-                                         Color panelColor, float time, float floatAmount) {
-        float floatY = (float) Math.sin(time * 2) * floatAmount;
+        // Message
+        context.drawText(textRenderer, message, x + 10, y + 20, Color.WHITE.getRGB(), false);
 
-        // Drop shadow
-        Color shadowColor = new Color(0, 0, 0, 50);
-        drawRoundedRect(context, x + 2, y + 2 + (int) floatY, width, height, 12, shadowColor);
-
-        // Main panel
-        drawRoundedRect(context, x, y + (int) floatY, width, height, 12, panelColor);
-
-        // Subtle highlight
-        Color highlightColor = new Color(255, 255, 255, 20);
-        drawRoundedRect(context, x, y + (int) floatY, width, 2, 12, highlightColor);
-    }
-
-    /**
-     * Creates a cyberpunk-style grid background
-     */
-    public static void drawCyberpunkGrid(DrawContext context, int x, int y, int width, int height,
-                                         Color gridColor, float time, int gridSize) {
-        for (int i = x; i < x + width; i += gridSize) {
-            float alpha = (float) Math.sin(time + i * 0.01f) * 0.3f + 0.5f;
-            int alphaInt = Math.max(0, Math.min(255, (int) (alpha * gridColor.getAlpha())));
-
-            Color lineColor = new Color(gridColor.getRed(), gridColor.getGreen(),
-                    gridColor.getBlue(), alphaInt);
-
-            context.fill(i, y, i + 1, y + height, lineColor.getRGB());
-        }
-
-        for (int j = y; j < y + height; j += gridSize) {
-            float alpha = (float) Math.cos(time + j * 0.01f) * 0.3f + 0.5f;
-            int alphaInt = Math.max(0, Math.min(255, (int) (alpha * gridColor.getAlpha())));
-
-            Color lineColor = new Color(gridColor.getRed(), gridColor.getGreen(),
-                    gridColor.getBlue(), alphaInt);
-
-            context.fill(x, j, x + width, j + 1, lineColor.getRGB());
-        }
+        // Shadow
+        drawGlow(context, x, y, width, height, 8, Color.BLACK, 3, 0.2f);
     }
 }

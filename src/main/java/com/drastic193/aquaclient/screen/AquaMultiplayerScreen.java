@@ -6,15 +6,13 @@ import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.multiplayer.MultiplayerScreen;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.TextFieldWidget;
-import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.text.Text;
 
 import java.awt.Color;
-import java.util.ArrayList;
-import java.util.List;
 
 public class AquaMultiplayerScreen extends MultiplayerScreen {
     private final MinecraftClient mc = MinecraftClient.getInstance();
+    private final Screen previousScreen;
     private float animationTime = 0.0f;
 
     // Version switcher
@@ -42,6 +40,7 @@ public class AquaMultiplayerScreen extends MultiplayerScreen {
 
     public AquaMultiplayerScreen(Screen parent) {
         super(parent);
+        this.previousScreen = parent; // Store the parent screen reference
     }
 
     @Override
@@ -66,8 +65,11 @@ public class AquaMultiplayerScreen extends MultiplayerScreen {
         // Render version switcher
         renderVersionSwitcher(context, mouseX, mouseY);
 
-        // Render custom overlay elements
+        // Render custom overlay elements (without Quick Connect panel)
         renderCustomOverlays(context);
+
+        // Render custom back button
+        renderCustomBackButton(context, mouseX, mouseY);
 
         // Call parent render but modify some elements
         super.render(context, mouseX, mouseY, delta);
@@ -200,11 +202,34 @@ public class AquaMultiplayerScreen extends MultiplayerScreen {
         // Connection status indicator
         drawConnectionStatus(context);
 
-        // Quick connect panel
-        renderQuickConnectPanel(context);
-
         // Aqua watermark
         renderWatermark(context);
+    }
+
+    private void renderCustomBackButton(DrawContext context, int mouseX, int mouseY) {
+        int buttonX = this.width - 100;
+        int buttonY = this.height - 35;
+        int buttonWidth = 80;
+        int buttonHeight = 25;
+
+        boolean isHovered = mouseX >= buttonX && mouseX <= buttonX + buttonWidth &&
+                mouseY >= buttonY && mouseY <= buttonY + buttonHeight;
+
+        // Button background
+        Color bgColor = isHovered ? new Color(200, 50, 50, 200) : new Color(150, 50, 50, 150);
+        drawRoundedRect(context, buttonX, buttonY, buttonWidth, buttonHeight, 6, bgColor);
+
+        // Button border
+        drawRoundedBorder(context, buttonX, buttonY, buttonWidth, buttonHeight, 6,
+                new Color(255, 100, 100, 200));
+
+        // Button text
+        String text = "← Back";
+        int textWidth = mc.textRenderer.getWidth(text);
+        context.drawText(mc.textRenderer, text,
+                buttonX + (buttonWidth - textWidth) / 2,
+                buttonY + (buttonHeight - 9) / 2,
+                TEXT_PRIMARY.getRGB(), false);
     }
 
     private void drawConnectionStatus(DrawContext context) {
@@ -231,46 +256,6 @@ public class AquaMultiplayerScreen extends MultiplayerScreen {
 
             context.fill(statusX + 8 + i * 6, barY, statusX + 11 + i * 6, statusY + 45,
                     finalColor.getRGB());
-        }
-    }
-
-    private void renderQuickConnectPanel(DrawContext context) {
-        int panelX = 15;
-        int panelY = 60;
-        int panelWidth = 200;
-        int panelHeight = 100;
-
-        // Panel background
-        drawRoundedRect(context, panelX, panelY, panelWidth, panelHeight, 8, BG_TERTIARY);
-        drawRoundedBorder(context, panelX, panelY, panelWidth, panelHeight, 8,
-                new Color(ACCENT_INFO.getRed(), ACCENT_INFO.getGreen(), ACCENT_INFO.getBlue(), 100));
-
-        // Panel title
-        context.drawText(mc.textRenderer, "Quick Connect", panelX + 10, panelY + 8,
-                ACCENT_INFO.getRGB(), false);
-
-        // Popular servers
-        String[] popularServers = {"Hypixel", "Mineplex", "CubeCraft", "Hive"};
-        Color[] serverColors = {ACCENT_WARNING, ACCENT_SUCCESS, ACCENT_INFO, ACCENT_PRIMARY};
-
-        for (int i = 0; i < popularServers.length; i++) {
-            int buttonY = panelY + 25 + i * 18;
-
-            // Server button background
-            drawRoundedRect(context, panelX + 10, buttonY, panelWidth - 20, 15, 3,
-                    new Color(serverColors[i].getRed(), serverColors[i].getGreen(),
-                            serverColors[i].getBlue(), 60));
-
-            // Server name
-            context.drawText(mc.textRenderer, popularServers[i], panelX + 15, buttonY + 4,
-                    TEXT_PRIMARY.getRGB(), false);
-
-            // Player count (mock)
-            String playerCount = (1000 + i * 500) + " online";
-            int playerCountWidth = mc.textRenderer.getWidth(playerCount);
-            context.drawText(mc.textRenderer, playerCount,
-                    panelX + panelWidth - playerCountWidth - 15, buttonY + 4,
-                    TEXT_SECONDARY.getRGB(), false);
         }
     }
 
@@ -301,6 +286,16 @@ public class AquaMultiplayerScreen extends MultiplayerScreen {
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
         if (button == 0) { // Left click
+            // Custom back button
+            int buttonX = this.width - 100;
+            int buttonY = this.height - 35;
+            if (mouseX >= buttonX && mouseX <= buttonX + 80 &&
+                    mouseY >= buttonY && mouseY <= buttonY + 25) {
+                // Go back WITHOUT refreshing servers
+                mc.setScreen(previousScreen);
+                return true;
+            }
+
             // Version switcher click
             if (mouseX >= 65 && mouseX <= 150 && mouseY >= 15 && mouseY <= 40) {
                 isVersionDropdownOpen = !isVersionDropdownOpen;
@@ -317,21 +312,8 @@ public class AquaMultiplayerScreen extends MultiplayerScreen {
                     selectedVersionIndex = clickedItem;
                     versionField.setText(availableVersions[selectedVersionIndex]);
                     isVersionDropdownOpen = false;
-
-                    // In real implementation, this would trigger version switching
                     switchVersion(availableVersions[selectedVersionIndex]);
                     return true;
-                }
-            }
-
-            // Quick connect buttons
-            if (mouseX >= 25 && mouseX <= 195) {
-                for (int i = 0; i < 4; i++) {
-                    int buttonY = 85 + i * 18;
-                    if (mouseY >= buttonY && mouseY <= buttonY + 15) {
-                        quickConnectToServer(i);
-                        return true;
-                    }
                 }
             }
 
@@ -346,8 +328,13 @@ public class AquaMultiplayerScreen extends MultiplayerScreen {
 
     @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-        if (keyCode == 256 && isVersionDropdownOpen) { // ESC key
-            isVersionDropdownOpen = false;
+        if (keyCode == 256) { // ESC key
+            if (isVersionDropdownOpen) {
+                isVersionDropdownOpen = false;
+                return true;
+            }
+            // Override ESC behavior to go back without refreshing
+            mc.setScreen(previousScreen);
             return true;
         }
 
@@ -355,50 +342,20 @@ public class AquaMultiplayerScreen extends MultiplayerScreen {
     }
 
     private void switchVersion(String version) {
-        // In a real implementation, this would:
-        // 1. Download the specified version if not available
-        // 2. Switch the game to use that version
-        // 3. Restart with the new version
-
         System.out.println("Switching to version: " + version);
-
-        // For demonstration, just show a message
-        // In real implementation, you'd need to integrate with a version switcher like MultiMC or similar
-    }
-
-    private void quickConnectToServer(int serverIndex) {
-        String[] serverIPs = {
-                "mc.hypixel.net",
-                "us.mineplex.com",
-                "play.cubecraft.net",
-                "play.hivemc.com"
-        };
-
-        if (serverIndex < serverIPs.length) {
-            // In real implementation, this would connect to the server
-            System.out.println("Quick connecting to: " + serverIPs[serverIndex]);
-        }
     }
 
     private Color getVersionStatusColor(String version) {
-        // Mock version status based on version
         return switch (version) {
-            case "1.21.1", "1.21" -> ACCENT_SUCCESS; // Latest/stable
-            case "1.20.6", "1.20.4", "1.20.1" -> ACCENT_WARNING; // Older but supported
-            default -> TEXT_DISABLED; // Very old/legacy
+            case "1.21.1", "1.21" -> ACCENT_SUCCESS;
+            case "1.20.6", "1.20.4", "1.20.1" -> ACCENT_WARNING;
+            default -> TEXT_DISABLED;
         };
     }
 
     private void drawRoundedRect(DrawContext context, int x, int y, int width, int height,
                                  int radius, Color color) {
-        // Simplified rounded rectangle
         context.fill(x, y, x + width, y + height, color.getRGB());
-
-        // Corner rounding effect (simplified)
-        context.fill(x, y, x + radius, y + radius, color.getRGB());
-        context.fill(x + width - radius, y, x + width, y + radius, color.getRGB());
-        context.fill(x, y + height - radius, x + radius, y + height, color.getRGB());
-        context.fill(x + width - radius, y + height - radius, x + width, y + height, color.getRGB());
     }
 
     private void drawRoundedBorder(DrawContext context, int x, int y, int width, int height,
@@ -410,11 +367,5 @@ public class AquaMultiplayerScreen extends MultiplayerScreen {
         // Left and right borders
         context.fill(x, y + radius, x + 1, y + height - radius, color.getRGB());
         context.fill(x + width - 1, y + radius, x + width, y + height - radius, color.getRGB());
-
-        // Corner pixels (simplified)
-        context.fill(x + radius - 1, y + 1, x + radius, y + 2, color.getRGB());
-        context.fill(x + width - radius, y + 1, x + width - radius + 1, y + 2, color.getRGB());
-        context.fill(x + radius - 1, y + height - 2, x + radius, y + height - 1, color.getRGB());
-        context.fill(x + width - radius, y + height - 2, x + width - radius + 1, y + height - 1, color.getRGB());
     }
 }
